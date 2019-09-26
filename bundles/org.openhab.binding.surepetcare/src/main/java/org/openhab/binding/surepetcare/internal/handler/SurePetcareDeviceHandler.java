@@ -54,8 +54,8 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
             if (thing.getThingTypeUID().equals(SurePetcareConstants.THING_TYPE_HUB_DEVICE)) {
                 updateState("ledMode", new DecimalType(device.getStatus().ledMode));
                 updateState("pairingMode", new DecimalType(device.getStatus().pairingMode));
-                updateState("hardwareVersion", new StringType(device.getStatus().version.device.hardware));
-                updateState("firmwareVersion", new StringType(device.getStatus().version.device.firmware));
+                updateState("hardwareVersion", new DecimalType(device.getStatus().version.device.hardware));
+                updateState("firmwareVersion", new DecimalType(device.getStatus().version.device.firmware));
                 updateState("online", OnOffType.from(device.getStatus().online));
             } else if (thing.getThingTypeUID().equals(SurePetcareConstants.THING_TYPE_FLAP_DEVICE)) {
                 int numCurfews = device.getControl().curfew.size();
@@ -66,8 +66,8 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
                     updateState("curfewUnlockTime" + (i + 1), new StringType(curfew.unlockTime));
                 }
                 updateState("lockingMode", new DecimalType(device.getStatus().locking.mode));
-                updateState("hardwareVersion", new StringType(device.getStatus().version.device.hardware));
-                updateState("firmwareVersion", new StringType(device.getStatus().version.device.firmware));
+                updateState("hardwareVersion", new DecimalType(device.getStatus().version.device.hardware));
+                updateState("firmwareVersion", new DecimalType(device.getStatus().version.device.firmware));
 
                 float batVol = device.getStatus().battery;
                 updateState("batteryVoltage", new DecimalType(batVol));
