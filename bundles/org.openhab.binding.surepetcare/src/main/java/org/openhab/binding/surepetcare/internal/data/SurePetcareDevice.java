@@ -14,6 +14,8 @@ package org.openhab.binding.surepetcare.internal.data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -57,10 +59,10 @@ public class SurePetcareDevice extends SurePetcareBaseObject {
 
     public enum ProductType {
 
-        UNKNOWN(-1, "Unknown"),
-        HUB(1, "Hub"),
-        PET_FLAP(3, "Pet Flap"),
-        CAT_FLAP(6, "Cat Flap");
+        UNKNOWN(-1, "@text/unknown"),
+        HUB(1, "@text/product-type.name.hub"),
+        PET_FLAP(3, "@text/product-type.name.petflap"),
+        CAT_FLAP(6, "@text/product-type.name.catflap");
 
         private final Integer typeId;
         private final String name;
@@ -239,6 +241,10 @@ public class SurePetcareDevice extends SurePetcareBaseObject {
     public String toString() {
         return "Device [id=" + id + ", name=" + name + ", product=" + ProductType.findByTypeId(productId).getName()
                 + "]";
+    }
+
+    public @NonNull ZonedDateTime getPairing() {
+        return pairingAt.toInstant().atZone(ZoneId.systemDefault());
     }
 
 }

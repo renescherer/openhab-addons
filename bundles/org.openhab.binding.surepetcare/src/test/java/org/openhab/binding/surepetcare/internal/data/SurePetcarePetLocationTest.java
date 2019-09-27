@@ -31,7 +31,7 @@ public class SurePetcarePetLocationTest {
         assertEquals(new Integer(60126), response.getTagId());
         assertEquals(new Integer(376236), response.getDeviceId());
         assertEquals(PetLocation.OUTSIDE.getLocationId(), response.getWhere());
-        assertEquals("Outside", response.getLocationName());
+        assertEquals("@text/location.outside", response.getLocationName());
         Date sinceDate = simpleDateFormat.parse("2019-09-11T13:09:07+0000");
         assertEquals(sinceDate, response.getSince());
     }

@@ -13,6 +13,7 @@
 package org.openhab.binding.surepetcare.internal.handler;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -40,6 +41,9 @@ public class SurePetcareHouseholdHandler extends SurePetcareBaseObjectHandler {
         if (household != null) {
             updateState("id", new DecimalType(household.getId()));
             updateState("name", new StringType(household.getName()));
+            updateState("timezoneId", new DecimalType(household.getTimezoneId()));
+            updateState("createdAt", new DateTimeType(household.getCreated()));
+            updateState("updatedAt", new DateTimeType(household.getUpdated()));
         }
     }
 

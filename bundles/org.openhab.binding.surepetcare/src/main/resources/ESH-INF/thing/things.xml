@@ -17,7 +17,10 @@
 
 		<channels>
 			<channel id="id" typeId="idType" />
-            <channel id="name" typeId="nameType" />
+			<channel id="name" typeId="nameType" />
+			<channel id="timezoneId" typeId="timezoneIdType" />
+			<channel id="createdAt" typeId="createdAtType" />
+			<channel id="updatedAt" typeId="updatedAtType" />
 		</channels>
 	</thing-type>
 
@@ -38,6 +41,8 @@
 			<channel id="hardwareVersion" typeId="hardwareVersionType" />
 			<channel id="firmwareVersion" typeId="firmwareVersionType" />
 			<channel id="online" typeId="onlineType" />
+			<channel id="createdAt" typeId="createdAtType" />
+			<channel id="updatedAt" typeId="updatedAtType" />
 		</channels>
 	</thing-type>
 
@@ -65,6 +70,8 @@
 			<channel id="curfewEnabled4" typeId="curfewEnabledType" />
 			<channel id="curfewLockTime4" typeId="curfewLockTimeType" />
 			<channel id="curfewUnlockTime4" typeId="curfewUnlockTimeType" />
+			<channel id="serialNumber" typeId="serialNumberType" />
+			<channel id="macAddress" typeId="macAddressType" />
 			<channel id="lockingMode" typeId="lockingModeType" />
 			<channel id="hardwareVersion" typeId="hardwareVersionType" />
 			<channel id="firmwareVersion" typeId="firmwareVersionType" />
@@ -74,6 +81,9 @@
 			<channel id="online" typeId="onlineType" />
 			<channel id="deviceRSSI" typeId="rssiDeviceType" />
 			<channel id="hubRSSI" typeId="rssiHubType" />
+			<channel id="createdAt" typeId="createdAtType" />
+			<channel id="updatedAt" typeId="updatedAtType" />
+			<channel id="pairingAt" typeId="pairingAtType" />
 		</channels>
 	</thing-type>
 
@@ -96,6 +106,8 @@
 			<channel id="tagIdentifier" typeId="tagIdentifierType" />
 			<channel id="location" typeId="locationType" />
 			<channel id="locationChanged" typeId="locationChangedType" />
+			<channel id="birthday" typeId="birthdayType" />
+			<channel id="weight" typeId="weightType" />
 		</channels>
 
 	</thing-type>
@@ -114,7 +126,14 @@
 		<state readOnly="true" pattern="%s"></state>
 	</channel-type>
 
-    <channel-type id="commentType">
+	<channel-type id="timezoneIdType">
+		<item-type>Number</item-type>
+		<label>Timezone Id</label>
+		<description>The timezone id of the household.</description>
+		<state readOnly="true" pattern="%d"></state>
+	</channel-type>
+
+	<channel-type id="commentType">
         <item-type>String</item-type>
         <label>Comment</label>
         <description>Comments about the thing</description>
@@ -184,6 +203,21 @@
 		<state readOnly="true" pattern="%1$tF %1$tR"></state>
 	</channel-type>
 
+	<channel-type id="birthdayType">
+		<item-type>DateTime</item-type>
+		<label>Pet Birthday</label>
+		<description>The pet birthday.</description>
+		<category>Time</category>
+		<state readOnly="true" pattern="%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS" />
+	</channel-type>
+
+	<channel-type id="weightType">
+		<item-type>String</item-type>
+		<label>Pet Weight</label>
+		<description>The pet weight</description>
+		<state readOnly="true" pattern="%s"></state>
+	</channel-type>
+
 	<channel-type id="ledModeType">
 		<item-type>Number</item-type>
 		<label>LED Mode</label>
@@ -202,14 +236,14 @@
 		<item-type>Number</item-type>
 		<label>Hardware Version</label>
 		<description>The version of the hardware</description>
-		<state readOnly="true" pattern="%s"></state>
+		<state readOnly="true" pattern="%d"></state>
 	</channel-type>
 
 	<channel-type id="firmwareVersionType">
 		<item-type>Number</item-type>
 		<label>Firmware Version</label>
 		<description>The version of the firmware</description>
-		<state readOnly="true" pattern="%s"></state>
+		<state readOnly="true" pattern="%d"></state>
 	</channel-type>
 
 	<channel-type id="onlineType">
@@ -237,6 +271,44 @@
 		<item-type>String</item-type>
 		<label>Curfew Unlock Time</label>
 		<description>The time when the curfew finishes</description>
+		<state readOnly="true" pattern="%s"></state>
+	</channel-type>
+
+	<channel-type id="createdAtType">
+		<item-type>DateTime</item-type>
+		<label>Created At</label>
+		<description>The Time when the device was created.</description>
+		<category>Time</category>
+		<state readOnly="true" pattern="%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS" />
+	</channel-type>
+
+	<channel-type id="updatedAtType">
+		<item-type>DateTime</item-type>
+		<label>Updated At</label>
+		<description>The Time when the device was updated.</description>
+		<category>Time</category>
+		<state readOnly="true" pattern="%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS" />
+	</channel-type>
+
+	<channel-type id="pairingAtType">
+		<item-type>DateTime</item-type>
+		<label>Pairing At</label>
+		<description>The Time when the device was paired.</description>
+		<category>Time</category>
+		<state readOnly="true" pattern="%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS" />
+	</channel-type>
+
+	<channel-type id="serialNumberType">
+		<item-type>String</item-type>
+		<label>Serial Number</label>
+		<description>The serial number of the device.</description>
+		<state readOnly="true" pattern="%s"></state>
+	</channel-type>
+
+	<channel-type id="macAddressType">
+		<item-type>String</item-type>
+		<label>MAC Address</label>
+		<description>The mac address of the device.</description>
 		<state readOnly="true" pattern="%s"></state>
 	</channel-type>
 

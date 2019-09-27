@@ -50,6 +50,9 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
             updateState("photoURL", new StringType(pet.getPhoto().getLocation()));
             updateState("location", new StringType(pet.getLocation().getLocationName()));
             updateState("locationChanged", new DateTimeType(pet.getLocation().getLocationChanged()));
+            //updateState("birthday", new DateTimeType(pet.getBirthday()));
+            updateState("weight", new StringType(pet.getWeight()));
+            updateState("tagIdentifier", new StringType(pet.getTagIdentifier().getTag()));
         }
     }
 

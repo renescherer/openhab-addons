@@ -31,9 +31,9 @@ public class SurePetcarePetLocation {
 
     public enum PetLocation {
 
-        UNKNONWN(0, "Unknown"),
-        INSIDE(1, "Inside"),
-        OUTSIDE(2, "Outside");
+        UNKNONWN(0, "@text/unknown"),
+        INSIDE(1, "@text/location.inside"),
+        OUTSIDE(2, "@text/location.outside");
 
         private final Integer locationId;
         private final String name;
@@ -60,6 +60,7 @@ public class SurePetcarePetLocation {
     private Integer petId;
     private Integer tagId;
     private Integer deviceId;
+    private Integer userId;
     private Integer where;
     private Date since;
 
@@ -93,6 +94,14 @@ public class SurePetcarePetLocation {
 
     public void setDeviceId(Integer deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public Integer getWhere() {

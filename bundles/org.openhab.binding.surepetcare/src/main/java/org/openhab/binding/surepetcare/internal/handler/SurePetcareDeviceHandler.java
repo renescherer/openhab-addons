@@ -13,6 +13,7 @@
 package org.openhab.binding.surepetcare.internal.handler;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.StringType;
@@ -51,12 +52,18 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
             updateState("id", new DecimalType(device.getId()));
             updateState("name", new StringType(device.getName()));
             updateState("product", new StringType(ProductType.findByTypeId(device.getProductId()).getName()));
-            if (thing.getThingTypeUID().equals(SurePetcareConstants.THING_TYPE_HUB_DEVICE)) {
-                updateState("ledMode", new DecimalType(device.getStatus().ledMode));
-                updateState("pairingMode", new DecimalType(device.getStatus().pairingMode));
+            updateState("name", new StringType(device.getName()));
+            if ((thing.getThingTypeUID().equals(SurePetcareConstants.THING_TYPE_HUB_DEVICE)) ||
+                (thing.getThingTypeUID().equals(SurePetcareConstants.THING_TYPE_HUB_DEVICE))) {
                 updateState("hardwareVersion", new DecimalType(device.getStatus().version.device.hardware));
                 updateState("firmwareVersion", new DecimalType(device.getStatus().version.device.firmware));
                 updateState("online", OnOffType.from(device.getStatus().online));
+                updateState("createdAt", new DateTimeType(device.getCreated()));
+                updateState("updatedAt", new DateTimeType(device.getUpdated()));
+            }
+            if (thing.getThingTypeUID().equals(SurePetcareConstants.THING_TYPE_HUB_DEVICE)) {
+                updateState("ledMode", new DecimalType(device.getStatus().ledMode));
+                updateState("pairingMode", new DecimalType(device.getStatus().pairingMode));
             } else if (thing.getThingTypeUID().equals(SurePetcareConstants.THING_TYPE_FLAP_DEVICE)) {
                 int numCurfews = device.getControl().curfew.size();
                 for (int i = 0; (i < 4) && (i < numCurfews); i++) {
@@ -66,22 +73,19 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
                     updateState("curfewUnlockTime" + (i + 1), new StringType(curfew.unlockTime));
                 }
                 updateState("lockingMode", new DecimalType(device.getStatus().locking.mode));
-                updateState("hardwareVersion", new DecimalType(device.getStatus().version.device.hardware));
-                updateState("firmwareVersion", new DecimalType(device.getStatus().version.device.firmware));
 
                 float batVol = device.getStatus().battery;
                 updateState("batteryVoltage", new DecimalType(batVol));
                 updateState("batteryLevel", new DecimalType(Math.min(batVol / BATTERY_FULL_VOLTAGE * 100.0f, 100.0f)));
                 updateState("lowBattery", OnOffType.from(batVol < LOW_BATTERY_THRESHOLD));
 
-                updateState("online", OnOffType.from(device.getStatus().online));
                 updateState("deviceRSSI", new DecimalType(device.getStatus().signal.deviceRssi));
                 updateState("hubRSSI", new DecimalType(device.getStatus().signal.hubRssi));
+                updateState("pairingAt", new DateTimeType(device.getPairing()));
             } else {
                 logger.warn("Unknown product type for device {}", thing.getUID().getAsString());
             }
             logger.debug("updating all thing channels for device : {}", device.toString());
-            updateState("name", new StringType(device.getName()));
         }
     }
 

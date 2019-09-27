@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.surepetcare.internal.data;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,6 +73,14 @@ public class SurePetcareBaseObject {
         properties.put("id", id.toString());
         properties.put("version", version);
         return properties;
+    }
+
+    public @NonNull ZonedDateTime getCreated() {
+        return createdAt.toInstant().atZone(ZoneId.systemDefault());
+    }
+
+    public @NonNull ZonedDateTime getUpdated() {
+        return updatedAt.toInstant().atZone(ZoneId.systemDefault());
     }
 
 }
