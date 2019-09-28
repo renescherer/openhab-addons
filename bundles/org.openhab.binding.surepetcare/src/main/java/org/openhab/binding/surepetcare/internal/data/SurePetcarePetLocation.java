@@ -32,8 +32,8 @@ public class SurePetcarePetLocation {
     public enum PetLocation {
 
         UNKNONWN(0, "@text/unknown"),
-        INSIDE(1, "@text/locationInside"),
-        OUTSIDE(2, "@text/locationOutside");
+        INSIDE(1, "@text/location.inside"),
+        OUTSIDE(2, "@text/location.outside");
 
         private final Integer locationId;
         private final String name;
