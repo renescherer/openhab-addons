@@ -60,9 +60,9 @@ public class SurePetcareDevice extends SurePetcareBaseObject {
     public enum ProductType {
 
         UNKNOWN(-1, "@text/unknown"),
-        HUB(1, "@text/product-type.name.hub"),
-        PET_FLAP(3, "@text/product-type.name.petflap"),
-        CAT_FLAP(6, "@text/product-type.name.catflap");
+        HUB(1, "@text/productTypeHub"),
+        PET_FLAP(3, "@text/productTypePetFlap"),
+        CAT_FLAP(6, "@text/productTypeCatFlap");
 
         private final Integer typeId;
         private final String name;

@@ -69,8 +69,8 @@ public class SurePetcarePet extends SurePetcareBaseObject {
     public enum PetGender {
 
         UNKNONWN(-1, "@text/unknown"),
-        FEMALE(0, "@text/gender.female"),
-        MALE(1, "@text/gender.male");
+        FEMALE(0, "@text/genderFemale"),
+        MALE(1, "@text/genderMale");
 
         private final Integer genderId;
         private final String name;
@@ -97,8 +97,8 @@ public class SurePetcarePet extends SurePetcareBaseObject {
     public enum PetSpecies {
 
         UNKNONWN(0, "@text/unknown"),
-        CAT(1, "@text/species.cat"),
-        DOG(2, "@text/species.dog");
+        CAT(1, "@text/speciesCat"),
+        DOG(2, "@text/speciesDog");
 
         private final Integer speciesId;
         private final String name;
