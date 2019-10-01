@@ -2,6 +2,7 @@ package org.openhab.binding.surepetcare.internal.data;
 
 import static org.junit.Assert.assertEquals;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -36,8 +37,8 @@ public class SurePetcareDeviceTest {
         assertEquals(new Integer(0), response.getControl().pairingModeId);
         assertEquals(new Integer(4), response.getStatus().ledModeId);
         assertEquals(new Integer(0), response.getStatus().pairingModeId);
-        assertEquals("3", response.getStatus().version.device.hardware);
-        assertEquals("1.772", response.getStatus().version.device.firmware);
+        assertEquals(new BigDecimal("3"), response.getStatus().version.device.hardware);
+        assertEquals(new BigDecimal("1.772"), response.getStatus().version.device.firmware);
     }
 
     @Test

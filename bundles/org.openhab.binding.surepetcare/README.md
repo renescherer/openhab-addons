@@ -63,8 +63,8 @@ After adding the Bridge, it will go ONLINE, and after a short while, the discove
 | productId         | Number   | The type of product (1=hub)                                                                |
 | ledModeId         | Number   | The numerical mode of the hub's LED ears                                                   |
 | pairingModeId     | Number   | The state of pairing                                                                       |
-| hardwareVersion   | Text     | The hub's hardware version number                                                          |
-| firmwareVersion   | Text     | The hub's firmware number                                                                  |
+| hardwareVersion   | Number   | The hub's hardware version number                                                          |
+| firmwareVersion   | Number   | The hub's firmware number                                                                  |
 | online            | Switch   | Indicator if the hub is connected to the internet                                          |
 
 ### Flap Device Thing (Cat or Pet Flap)
@@ -77,9 +77,10 @@ After adding the Bridge, it will go ONLINE, and after a short while, the discove
 | curfewEnabled1    | Switch   | Indicator if this curfew configuration is enabled                                          |
 | curfewLockTime1   | Text     | The curfew locking time (HH:MM)                                                            |
 | curfewUnlockTime1 | Text     | The curfew unlocking time (HH:MM)                                                          |
-| lockingModeId     | Number   | A numeric indicator of the locking mode (e.g. in/out, in-only, out-only etc.)              |
 | hardwareVersion   | Text     | The flap's hardware version number                                                         |
-| firmwareVersion   | Text     | The flap's firmware number                                                                 |
+| lockingModeId     | Number   | A numeric indicator of the locking mode (e.g. in/out, in-only, out-only etc.)              |
+| hardwareVersion   | Number   | The flap's hardware version number                                                         |
+| firmwareVersion   | Number   | The flap's firmware number                                                                 |
 | online            | Switch   | Indicator if the flap is connected to the hub                                              |
 | lowBattery        | Switch   | Indicator if the battery voltage is low                                                    |
 | batteryLevel      | Number   | The battery voltage percentage                                                             |
