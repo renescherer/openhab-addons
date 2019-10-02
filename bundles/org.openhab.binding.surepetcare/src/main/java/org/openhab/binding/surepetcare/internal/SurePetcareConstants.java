@@ -72,6 +72,7 @@ public class SurePetcareConstants {
     public static final String DEVICE_CHANNEL_CURFEW_LOCK_TIME = "curfewLockTime";
     public static final String DEVICE_CHANNEL_CURFEW_UNLOCK_TIME = "curfewUnlockTime";
     public static final String DEVICE_CHANNEL_LOCKING_MODE_ID = "lockingModeId";
+    public static final String DEVICE_CHANNEL_LOCKING_MODE = "lockingMode";
     public static final String DEVICE_CHANNEL_BATTERY_VOLTAGE = "batteryVoltage";
     public static final String DEVICE_CHANNEL_BATTERY_LEVEL = "batteryLevel";
     public static final String DEVICE_CHANNEL_LOW_BATTERY = "lowBattery";

@@ -15,10 +15,8 @@ package org.openhab.binding.surepetcare.internal.data;
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -32,33 +30,6 @@ import com.google.gson.annotations.SerializedName;
  * @author Rene Scherer - Initial contribution
  */
 public class SurePetcareDevice extends SurePetcareBaseObject {
-
-    // {
-    // "id":346854,
-    // "product_id":1,
-    // "household_id":34563,
-    // "name":"Home Hub",
-    // "serial_number":"H008-0316428",
-    // "mac_address":"00000467320C0B35",
-    // "version":"MjY=",
-    // "created_at":"2019-04-18T14:45:11+00:00",
-    // "updated_at":"2019-09-11T08:25:22+00:00",
-    // "control":{
-    // "led_mode":4,
-    // "pairing_mode":0
-    // },
-    // "status":{
-    // "led_mode":4,
-    // "pairing_mode":0,
-    // "version":{
-    // "device":{
-    // "hardware":3,
-    // "firmware":1.772
-    // }
-    // },
-    // "online":true
-    // }
-    // },
 
     public enum ProductType {
 
@@ -87,22 +58,6 @@ public class SurePetcareDevice extends SurePetcareBaseObject {
         public static @NonNull ProductType findByTypeId(final int id) {
             return Arrays.stream(values()).filter(value -> value.id.equals(id)).findFirst().orElse(UNKNOWN);
         }
-    }
-
-    public class Control {
-        public class Curfew {
-            public Boolean enabled;
-            public String unlockTime;
-            public String lockTime;
-        }
-
-        public Integer locking;
-        public Boolean fastPolling;
-        @SerializedName("led_mode")
-        public Integer ledModeId;
-        @SerializedName("pairing_mode")
-        public Integer pairingModeId;
-        public List<Curfew> curfew = new ArrayList<Curfew>();
     }
 
     public class Status {
@@ -145,7 +100,7 @@ public class SurePetcareDevice extends SurePetcareBaseObject {
     private String macAddress;
     private Integer index;
     private Date pairingAt;
-    private Control control = new Control();
+    private SurePetcareDeviceControl control = new SurePetcareDeviceControl();
     private SurePetcareDevice parent;
     private Status status = new Status();
 
@@ -213,11 +168,11 @@ public class SurePetcareDevice extends SurePetcareBaseObject {
         this.pairingAt = pairingAt;
     }
 
-    public Control getControl() {
+    public SurePetcareDeviceControl getControl() {
         return control;
     }
 
-    public void setControl(Control control) {
+    public void setControl(SurePetcareDeviceControl control) {
         this.control = control;
     }
 

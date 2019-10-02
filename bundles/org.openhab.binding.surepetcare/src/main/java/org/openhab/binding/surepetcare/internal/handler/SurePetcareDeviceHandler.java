@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.openhab.binding.surepetcare.internal.SurePetcareAPIHelper;
 import org.openhab.binding.surepetcare.internal.data.SurePetcareDevice;
-import org.openhab.binding.surepetcare.internal.data.SurePetcareDevice.Control.Curfew;
+import org.openhab.binding.surepetcare.internal.data.SurePetcareDeviceControl.Curfew;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,14 +66,15 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
                 updateState(DEVICE_CHANNEL_SERIAL_NUMBER, new StringType(device.getSerialNumber()));
                 updateState(DEVICE_CHANNEL_MAC_ADDRESS, new StringType(device.getMacAddress()));
             } else if (thing.getThingTypeUID().equals(THING_TYPE_FLAP_DEVICE)) {
-                int numCurfews = device.getControl().curfew.size();
+                int numCurfews = device.getControl().getCurfew().size();
                 for (int i = 0; (i < 4) && (i < numCurfews); i++) {
-                    Curfew curfew = device.getControl().curfew.get(i);
+                    Curfew curfew = device.getControl().getCurfew().get(i);
                     updateState(DEVICE_CHANNEL_CURFEW_ENABLED + (i + 1), OnOffType.from(device.getStatus().online));
                     updateState(DEVICE_CHANNEL_CURFEW_LOCK_TIME + (i + 1), new StringType(curfew.lockTime));
                     updateState(DEVICE_CHANNEL_CURFEW_UNLOCK_TIME + (i + 1), new StringType(curfew.unlockTime));
                 }
                 updateState(DEVICE_CHANNEL_LOCKING_MODE_ID, new DecimalType(device.getStatus().locking.modeId));
+                updateState(DEVICE_CHANNEL_LOCKING_MODE, new StringType(device.getStatus().locking.modeId.toString()));
                 updateState(DEVICE_CHANNEL_HARDWARE_VERSION,
                         new DecimalType(device.getStatus().version.device.hardware));
                 updateState(DEVICE_CHANNEL_FIRMWARE_VERSION,

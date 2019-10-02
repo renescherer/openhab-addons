@@ -73,6 +73,7 @@
 			<channel id="curfewLockTime4" typeId="curfewLockTimeType" />
 			<channel id="curfewUnlockTime4" typeId="curfewUnlockTimeType" />
 			<channel id="lockingModeId" typeId="lockingModeIdType" />
+			<channel id="lockingMode" typeId="lockingModeType" />
 			<channel id="serialNumber" typeId="serialNumberType" />
 			<channel id="macAddress" typeId="macAddressType" />
 			<channel id="hardwareVersion" typeId="hardwareVersionType" />
@@ -313,12 +314,30 @@
 		<description>The pet weight</description>
 		<state readOnly="true" pattern="%d kg"></state>
 	</channel-type>
-	
-	<channel-type id="lockingModeIdType" advanced="true">
+
+	<channel-type id="lockingModeIdType">
 		<item-type>Number</item-type>
 		<label>Locking Mode Id</label>
-		<description>The id of the locking mode the flap is currently set to (e.g. in/out, in only, out only, locked)</description>
-		<state readOnly="true" pattern="%d"></state>
+		<description>The id of the locking mode the flap is currently set to (e.g. in/out, in only, out only, locked)
+		</description>
+		<state readOnly="false" pattern="%d"></state>
+	</channel-type>
+
+	<channel-type id="lockingModeType">
+		<item-type>String</item-type>
+		<label>Locking Mode</label>
+		<description>The name of the current locking mode the flap is to (e.g. in/out, in only, out only, locked)
+		</description>
+		<state readOnly="true" pattern="%s">
+			<options>
+				<option value="0">Unlocked</option>
+				<option value="1">Locked In-only</option>
+				<option value="2">Locked Out-only</option>
+				<option value="3">Locked</option>
+				<option value="4">Curfew</option>
+				<option value="">Unknown</option>
+			</options>
+		</state>
 	</channel-type>
 
 	<channel-type id="batteryVoltageType">
