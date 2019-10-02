@@ -31,7 +31,7 @@ import com.google.gson.annotations.SerializedName;
 @NonNullByDefault
 public class SurePetcarePet extends SurePetcareBaseObject {
 
-    public enum PetGender {
+    /*public enum PetGender {
 
         UNKNONWN(-1, "Unknown"),
         FEMALE(0, "Female"),
@@ -56,7 +56,7 @@ public class SurePetcarePet extends SurePetcareBaseObject {
         public static PetGender findByTypeId(final int id) {
             return Arrays.stream(values()).filter(value -> value.id.equals(id)).findFirst().orElse(UNKNONWN);
         }
-    }
+    }*/
 
     public enum PetSpecies {
 

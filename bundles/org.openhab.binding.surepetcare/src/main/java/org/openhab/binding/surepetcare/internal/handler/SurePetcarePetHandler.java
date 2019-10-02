@@ -50,7 +50,7 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
             updateThing();
         } else {
             switch (channelUID.getId()) {
-                case PET_CHANNEL_LOCATION_ID:
+                case PET_CHANNEL_LOCATION:
                     String location = command.toFullString();
                     logger.debug("received location update command: {}", location);
                     if (command instanceof DecimalType) {
@@ -62,7 +62,7 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
                         if (pet != null) {
                             try {
                                 petcareAPI.setPetLocation(pet, newLocationId);
-                                updateState(PET_CHANNEL_LOCATION_ID, new DecimalType(pet.getLocation().getWhere()));
+                                updateState(PET_CHANNEL_LOCATION, new StringType(pet.getLocation().getWhere().toString()));
                                 updateState(PET_CHANNEL_LOCATION_CHANGED,
                                         new DateTimeType(pet.getLocation().getLocationChanged()));
                             } catch (SurePetcareApiException e) {
@@ -86,11 +86,11 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
             updateState(PET_CHANNEL_ID, new DecimalType(pet.getId()));
             updateState(PET_CHANNEL_NAME, new StringType(pet.getName()));
             updateState(PET_CHANNEL_COMMENT, new StringType(pet.getComments()));
-            updateState(PET_CHANNEL_GENDER_ID, new DecimalType(pet.getGenderId()));
-            updateState(PET_CHANNEL_BREED_ID, new DecimalType(pet.getBreedId()));
-            updateState(PET_CHANNEL_SPECIES_ID, new DecimalType(pet.getSpeciesId()));
+            updateState(PET_CHANNEL_GENDER, new StringType(pet.getGenderId().toString()));
+            updateState(PET_CHANNEL_BREED, new StringType(pet.getBreedId().toString()));
+            updateState(PET_CHANNEL_SPECIES, new StringType(pet.getSpeciesId().toString()));
             updateState(PET_CHANNEL_PHOTO_URL, new StringType(pet.getPhoto().getLocation()));
-            updateState(PET_CHANNEL_LOCATION_ID, new DecimalType(pet.getLocation().getWhere()));
+            updateState(PET_CHANNEL_LOCATION, new StringType(pet.getLocation().getWhere().toString()));
             updateState(PET_CHANNEL_LOCATION_CHANGED, new DateTimeType(pet.getLocation().getLocationChanged()));
             // updateState(PET_CHANNEL_BIRTHDAY, new DateTimeType(pet.getBirthday()));
             updateState(PET_CHANNEL_WEIGHT, new StringType(pet.getWeight()));
@@ -101,7 +101,7 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
     public void updatePetLocation() {
         SurePetcarePet pet = petcareAPI.retrievePet(thing.getUID().getId());
         if (pet != null) {
-            updateState(PET_CHANNEL_LOCATION_ID, new DecimalType(pet.getLocation().getWhere()));
+            updateState(PET_CHANNEL_LOCATION, new StringType(pet.getLocation().getWhere().toString()));
             updateState(PET_CHANNEL_LOCATION_CHANGED, new DateTimeType(pet.getLocation().getLocationChanged()));
         }
     }

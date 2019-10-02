@@ -52,10 +52,10 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
             logger.debug("Updating all thing channels for device : {}", device.toString());
             updateState(DEVICE_CHANNEL_ID, new DecimalType(device.getId()));
             updateState(DEVICE_CHANNEL_NAME, new StringType(device.getName()));
-            updateState(DEVICE_CHANNEL_PRODUCT_ID, new DecimalType(device.getProductId()));
+            updateState(DEVICE_CHANNEL_PRODUCT, new StringType(device.getProductId().toString()));
             if (thing.getThingTypeUID().equals(THING_TYPE_HUB_DEVICE)) {
-                updateState(DEVICE_CHANNEL_LED_MODE_ID, new DecimalType(device.getStatus().ledModeId));
-                updateState(DEVICE_CHANNEL_PAIRING_MODE_ID, new DecimalType(device.getStatus().pairingModeId));
+                updateState(DEVICE_CHANNEL_LED_MODE, new StringType(device.getStatus().ledModeId.toString()));
+                updateState(DEVICE_CHANNEL_PAIRING_MODE, new StringType(device.getStatus().pairingModeId.toString()));
                 updateState(DEVICE_CHANNEL_HARDWARE_VERSION,
                         new DecimalType(device.getStatus().version.device.hardware));
                 updateState(DEVICE_CHANNEL_FIRMWARE_VERSION,
@@ -73,7 +73,6 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
                     updateState(DEVICE_CHANNEL_CURFEW_LOCK_TIME + (i + 1), new StringType(curfew.lockTime));
                     updateState(DEVICE_CHANNEL_CURFEW_UNLOCK_TIME + (i + 1), new StringType(curfew.unlockTime));
                 }
-                updateState(DEVICE_CHANNEL_LOCKING_MODE_ID, new DecimalType(device.getStatus().locking.modeId));
                 updateState(DEVICE_CHANNEL_LOCKING_MODE, new StringType(device.getStatus().locking.modeId.toString()));
                 updateState(DEVICE_CHANNEL_HARDWARE_VERSION,
                         new DecimalType(device.getStatus().version.device.hardware));
