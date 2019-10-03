@@ -12,7 +12,6 @@
  */
 package org.openhab.binding.surepetcare.internal.data;
 
-import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -20,8 +19,6 @@ import java.util.Date;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNull;
-
-import com.google.gson.annotations.SerializedName;
 
 /**
  * The {@link SurePetcareDevice} is the Java class used
@@ -60,38 +57,6 @@ public class SurePetcareDevice extends SurePetcareBaseObject {
         }
     }
 
-    public class Status {
-        public class Locking {
-            @SerializedName("mode")
-            public Integer modeId;
-        }
-
-        public class Version {
-            public class Device {
-                public BigDecimal hardware;
-                public BigDecimal firmware;
-            }
-
-            public Device device = new Device();
-        }
-
-        public class Signal {
-            public Float deviceRssi;
-            public Float hubRssi;
-        }
-
-        @SerializedName("led_mode")
-        public Integer ledModeId;
-        @SerializedName("pairing_mode")
-        public Integer pairingModeId;
-        public Locking locking;
-        public Version version;
-        public Float battery;
-        // learn_mode - unknown type
-        public Boolean online;
-        public Signal signal = new Signal();
-    }
-
     private Integer parentDeviceId;
     private Integer productId;
     private Integer householdId;
@@ -102,7 +67,7 @@ public class SurePetcareDevice extends SurePetcareBaseObject {
     private Date pairingAt;
     private SurePetcareDeviceControl control = new SurePetcareDeviceControl();
     private SurePetcareDevice parent;
-    private Status status = new Status();
+    private SurePetcareDeviceStatus status = new SurePetcareDeviceStatus();
 
     public Integer getProductId() {
         return productId;
@@ -184,11 +149,11 @@ public class SurePetcareDevice extends SurePetcareBaseObject {
         this.parent = parent;
     }
 
-    public Status getStatus() {
+    public SurePetcareDeviceStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(SurePetcareDeviceStatus status) {
         this.status = status;
     }
 
