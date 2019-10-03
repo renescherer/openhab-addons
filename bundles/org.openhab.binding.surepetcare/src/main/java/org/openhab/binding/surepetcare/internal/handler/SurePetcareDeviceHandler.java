@@ -19,10 +19,14 @@ import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.surepetcare.internal.SurePetcareAPIHelper;
+import org.openhab.binding.surepetcare.internal.SurePetcareApiException;
 import org.openhab.binding.surepetcare.internal.data.SurePetcareDevice;
-import org.openhab.binding.surepetcare.internal.data.SurePetcareDevice.Control.Curfew;
+import org.openhab.binding.surepetcare.internal.data.SurePetcareDeviceControl.Curfew;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,16 +50,54 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
     }
 
     @Override
+    public void handleCommand(ChannelUID channelUID, Command command) {
+        logger.debug("DeviceHandler handleCommand called with command: {}", command.toString());
+
+        if (command instanceof RefreshType) {
+            updateThing();
+        } else {
+            switch (channelUID.getId()) {
+                case DEVICE_CHANNEL_LOCKING_MODE:
+                    logger.debug("received lockingModeId update command: {}", command.toFullString());
+                    if (command instanceof StringType) {
+                        synchronized (petcareAPI) {
+                            SurePetcareDevice device = petcareAPI.retrieveDevice(thing.getUID().getId());
+                            if (device != null) {
+                                String newLockingModeIdStr = ((StringType) command).toString();
+                                try {
+                                    Integer newLockingModeId = Integer.valueOf(newLockingModeIdStr);
+                                    logger.debug("new lockingModeId: {}", newLockingModeId);
+                                    petcareAPI.setDeviceLockingMode(device, newLockingModeId);
+                                    updateState(DEVICE_CHANNEL_LOCKING_MODE,
+                                            new StringType(device.getStatus().locking.modeId.toString()));
+                                } catch (NumberFormatException e) {
+                                    logger.warn("Invalid locking mode: {}, ignoring command", newLockingModeIdStr);
+                                } catch (SurePetcareApiException e) {
+                                    logger.warn(
+                                            "Error from SurePetcare API. Can't update locking mode {} for device {}",
+                                            newLockingModeIdStr, device.toString());
+                                }
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    logger.warn("Update on unsupported channel {}, ignoring command", channelUID.getId());
+            }
+        }
+    }
+
+    @Override
     public void updateThing() {
         SurePetcareDevice device = petcareAPI.retrieveDevice(thing.getUID().getId());
         if (device != null) {
             logger.debug("Updating all thing channels for device : {}", device.toString());
             updateState(DEVICE_CHANNEL_ID, new DecimalType(device.getId()));
             updateState(DEVICE_CHANNEL_NAME, new StringType(device.getName()));
-            updateState(DEVICE_CHANNEL_PRODUCT_ID, new DecimalType(device.getProductId()));
+            updateState(DEVICE_CHANNEL_PRODUCT, new StringType(device.getProductId().toString()));
             if (thing.getThingTypeUID().equals(THING_TYPE_HUB_DEVICE)) {
-                updateState(DEVICE_CHANNEL_LED_MODE_ID, new DecimalType(device.getStatus().ledModeId));
-                updateState(DEVICE_CHANNEL_PAIRING_MODE_ID, new DecimalType(device.getStatus().pairingModeId));
+                updateState(DEVICE_CHANNEL_LED_MODE, new StringType(device.getStatus().ledModeId.toString()));
+                updateState(DEVICE_CHANNEL_PAIRING_MODE, new StringType(device.getStatus().pairingModeId.toString()));
                 updateState(DEVICE_CHANNEL_HARDWARE_VERSION,
                         new DecimalType(device.getStatus().version.device.hardware));
                 updateState(DEVICE_CHANNEL_FIRMWARE_VERSION,
@@ -66,14 +108,14 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
                 updateState(DEVICE_CHANNEL_SERIAL_NUMBER, new StringType(device.getSerialNumber()));
                 updateState(DEVICE_CHANNEL_MAC_ADDRESS, new StringType(device.getMacAddress()));
             } else if (thing.getThingTypeUID().equals(THING_TYPE_FLAP_DEVICE)) {
-                int numCurfews = device.getControl().curfew.size();
+                int numCurfews = device.getControl().getCurfew().size();
                 for (int i = 0; (i < 4) && (i < numCurfews); i++) {
-                    Curfew curfew = device.getControl().curfew.get(i);
+                    Curfew curfew = device.getControl().getCurfew().get(i);
                     updateState(DEVICE_CHANNEL_CURFEW_ENABLED + (i + 1), OnOffType.from(device.getStatus().online));
                     updateState(DEVICE_CHANNEL_CURFEW_LOCK_TIME + (i + 1), new StringType(curfew.lockTime));
                     updateState(DEVICE_CHANNEL_CURFEW_UNLOCK_TIME + (i + 1), new StringType(curfew.unlockTime));
                 }
-                updateState(DEVICE_CHANNEL_LOCKING_MODE_ID, new DecimalType(device.getStatus().locking.modeId));
+                updateState(DEVICE_CHANNEL_LOCKING_MODE, new StringType(device.getStatus().locking.modeId.toString()));
                 updateState(DEVICE_CHANNEL_HARDWARE_VERSION,
                         new DecimalType(device.getStatus().version.device.hardware));
                 updateState(DEVICE_CHANNEL_FIRMWARE_VERSION,
