@@ -66,7 +66,6 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
                                 String newLockingModeIdStr = ((StringType) command).toString();
                                 try {
                                     Integer newLockingModeId = Integer.valueOf(newLockingModeIdStr);
-                                    logger.debug("new lockingModeId: {}", newLockingModeId);
                                     petcareAPI.setDeviceLockingMode(device, newLockingModeId);
                                     updateState(DEVICE_CHANNEL_LOCKING_MODE,
                                             new StringType(device.getStatus().getLocking().modeId.toString()));
@@ -89,7 +88,6 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
                                 String newLedModeIdStr = ((StringType) command).toString();
                                 try {
                                     Integer newLedModeId = Integer.valueOf(newLedModeIdStr);
-                                    logger.debug("new ledModeId: {}", newLedModeId);
                                     petcareAPI.setDeviceLedMode(device, newLedModeId);
                                     updateState(DEVICE_CHANNEL_LOCKING_MODE,
                                             new StringType(device.getStatus().getLedModeId().toString()));
@@ -164,6 +162,8 @@ public class SurePetcareDeviceHandler extends SurePetcareBaseObjectHandler {
             } else {
                 logger.warn("Unknown product type for device {}", thing.getUID().getAsString());
             }
+        } else {
+            logger.debug("Trying to update unknown device: {}", thing.getUID().getId());
         }
     }
 
