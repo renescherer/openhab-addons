@@ -62,6 +62,7 @@ public class SurePetcareConstants {
     // public static final String HOUSEHOLD_CHANNEL_TIMEZONE_UTC_OFFSET = "timezoneUTCOffset";
     public static final String HOUSEHOLD_CHANNEL_CREATED_AT = "createdAt";
     public static final String HOUSEHOLD_CHANNEL_UPDATED_AT = "updatedAt";
+    public static final String HOUSEHOLD_CHANNEL_USER_NAME = "userName";
 
     // Device Channel Names
     public static final String DEVICE_CHANNEL_ID = "id";
@@ -107,6 +108,7 @@ public class SurePetcareConstants {
     public static final String PET_CHANNEL_PHOTO_URL = "photoURL";
     public static final String PET_CHANNEL_LOCATION = "location";
     public static final String PET_CHANNEL_LOCATION_CHANGED = "locationChanged";
+    public static final String PET_CHANNEL_LOCATION_CHANGED_THROUGH = "locationChangedThrough";
     public static final String PET_CHANNEL_DATE_OF_BIRTH = "dateOfBirth";
     public static final String PET_CHANNEL_WEIGHT = "weight";
     public static final String PET_CHANNEL_TAG_IDENTIFIER = "tagIdentifier";

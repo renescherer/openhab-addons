@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.surepetcare.internal.SurePetcareAPIHelper;
 import org.openhab.binding.surepetcare.internal.SurePetcareApiException;
 import org.openhab.binding.surepetcare.internal.data.SurePetcareDevice;
+import org.openhab.binding.surepetcare.internal.data.SurePetcareHousehold;
 import org.openhab.binding.surepetcare.internal.data.SurePetcarePet;
 import org.openhab.binding.surepetcare.internal.data.SurePetcarePetLocation;
 import org.openhab.binding.surepetcare.internal.data.SurePetcarePetStatus.Activity;
@@ -131,6 +132,21 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
                     SurePetcareTag tag = petcareAPI.getTag(pet.getTagId().toString());
                     if (tag != null) {
                         updateState(PET_CHANNEL_TAG_IDENTIFIER, new StringType(tag.getTag()));
+                    }
+                }
+                if (pet.getPetStatus().getActivity().getDeviceId() != null) {
+                    SurePetcareDevice device = petcareAPI
+                            .getDevice(pet.getPetStatus().getActivity().getDeviceId().toString());
+                    updateState(PET_CHANNEL_LOCATION_CHANGED_THROUGH, new StringType(device.getName()));
+                } else if (pet.getPetStatus().getActivity().getUserId() != null) {
+                    SurePetcareHousehold user = petcareAPI.getHousehold(pet.getHouseholdId().toString());
+                    int numUsers = user.getHouseholdUsers().size();
+                    for (int i = 0; (i < numUsers); i++) {
+                        if (pet.getPetStatus().getActivity().getUserId()
+                                .equals(user.getHouseholdUsers().get(i).getUser().getUserId())) {
+                            updateState(PET_CHANNEL_LOCATION_CHANGED_THROUGH,
+                                    new StringType(user.getHouseholdUsers().get(i).getUser().getUserName().toString()));
+                        }
                     }
                 }
                 Feeding feeding = pet.getPetStatus().getFeeding();
