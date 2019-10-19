@@ -243,7 +243,7 @@ public class SurePetcareAPIHelper {
     /**
      * Updates the pet location through an API call to the Sure Petcare API.
      *
-     * @param pet the pet
+     * @param pet           the pet
      * @param newLocationId the id of the new location
      * @throws SurePetcareApiException
      */
@@ -258,7 +258,7 @@ public class SurePetcareAPIHelper {
     /**
      * Updates the device locking mode through an API call to the Sure Petcare API.
      *
-     * @param device the device
+     * @param device           the device
      * @param newLockingModeId the id of the new locking mode
      * @throws SurePetcareApiException
      */
@@ -279,7 +279,7 @@ public class SurePetcareAPIHelper {
     /**
      * Updates the device led mode through an API call to the Sure Petcare API.
      *
-     * @param device the device
+     * @param device       the device
      * @param newLedModeId the id of the new led mode
      * @throws SurePetcareApiException
      */
@@ -300,7 +300,7 @@ public class SurePetcareAPIHelper {
     /**
      * Updates all curfews through an API call to the Sure Petcare API.
      *
-     * @param device the device
+     * @param device     the device
      * @param curfewList the list of curfews
      * @throws SurePetcareApiException
      */
@@ -402,9 +402,9 @@ public class SurePetcareAPIHelper {
     /**
      * Sends a given object as a JSON payload to the API.
      *
-     * @param url the URL
+     * @param url           the URL
      * @param requestMethod the request method (POST, PUT etc.)
-     * @param payload an object used for the payload
+     * @param payload       an object used for the payload
      * @throws SurePetcareApiException
      */
     private void setDataThroughApi(String url, String requestMethod, Object payload) throws SurePetcareApiException {
@@ -464,9 +464,9 @@ public class SurePetcareAPIHelper {
     /**
      * Uses the given request method to send a JSON string to an API.
      *
-     * @param url the URL
+     * @param url           the URL
      * @param requestMethod the required request method (POST, PUT etc.)
-     * @param jsonPayload the JSON string
+     * @param jsonPayload   the JSON string
      * @throws SurePetcareApiException
      */
     private void postDataThroughAPI(String url, String requestMethod, String jsonPayload)

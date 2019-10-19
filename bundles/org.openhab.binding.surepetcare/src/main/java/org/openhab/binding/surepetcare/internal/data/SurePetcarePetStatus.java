@@ -81,7 +81,7 @@ public class SurePetcarePetStatus {
         public void setSince(Date since) {
             this.since = since;
         }
-    
+
         public ZonedDateTime getLocationChanged() {
             if (since != null) {
                 return since.toInstant().atZone(ZoneId.systemDefault()).withNano(0);

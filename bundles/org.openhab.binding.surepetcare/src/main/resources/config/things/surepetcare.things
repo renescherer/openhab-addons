@@ -5,5 +5,3 @@ Bridge surepetcare:bridge:bridge1 "Demo API Bridge" [ username="<USERNAME>", pas
   Thing flapDevice 316524 "My Backdoor Cat Flap"
   Thing pet        60487  "My Cat"
 }
-
-

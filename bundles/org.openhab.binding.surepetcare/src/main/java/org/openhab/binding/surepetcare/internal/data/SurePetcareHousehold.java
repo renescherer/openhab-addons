@@ -29,19 +29,19 @@ public class SurePetcareHousehold extends SurePetcareBaseObject {
             private Integer userId;
             @SerializedName("name")
             private String userName;
-            
+
             public Integer getUserId() {
                 return userId;
             }
-            
+
             public void setUserId(Integer userId) {
                 this.userId = userId;
             }
-            
+
             public String getUserName() {
                 return userName;
             }
-            
+
             public void setUserName(String userName) {
                 this.userName = userName;
             }
@@ -49,11 +49,11 @@ public class SurePetcareHousehold extends SurePetcareBaseObject {
 
         @SerializedName("user")
         private User user;
-        
+
         public User getUser() {
             return user;
         }
-        
+
         public void setUser(User user) {
             this.user = user;
         }
@@ -92,7 +92,7 @@ public class SurePetcareHousehold extends SurePetcareBaseObject {
     public List<HouseholdUsers> getHouseholdUsers() {
         return householdUsers;
     }
-        
+
     public void setHouseholdUsers(List<HouseholdUsers> householdUsers) {
         this.householdUsers = householdUsers;
     }
