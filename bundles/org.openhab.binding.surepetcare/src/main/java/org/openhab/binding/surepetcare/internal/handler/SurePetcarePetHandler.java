@@ -108,9 +108,15 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
                 if (pet.getComments() != null) {
                     updateState(PET_CHANNEL_COMMENT, new StringType(pet.getComments()));
                 }
-                updateState(PET_CHANNEL_GENDER, new StringType(pet.getGenderId().toString()));
-                updateState(PET_CHANNEL_BREED, new StringType(pet.getBreedId().toString()));
-                updateState(PET_CHANNEL_SPECIES, new StringType(pet.getSpeciesId().toString()));
+                if (pet.getGenderId() != null) {
+                    updateState(PET_CHANNEL_GENDER, new StringType(pet.getGenderId().toString()));
+                }
+                if (pet.getBreedId() != null) {
+                    updateState(PET_CHANNEL_BREED, new StringType(pet.getBreedId().toString()));
+                }
+                if (pet.getSpeciesId() != null) {
+                    updateState(PET_CHANNEL_SPECIES, new StringType(pet.getSpeciesId().toString()));
+                }
                 if (pet.getPhoto() != null) {
                     updateState(PET_CHANNEL_PHOTO_URL, new StringType(pet.getPhoto().getLocation()));
                 }
