@@ -58,8 +58,6 @@ public class SurePetcareConstants {
     public static final String HOUSEHOLD_CHANNEL_ID = "id";
     public static final String HOUSEHOLD_CHANNEL_NAME = "name";
     public static final String HOUSEHOLD_CHANNEL_TIMEZONE_ID = "timezoneId";
-    // public static final String HOUSEHOLD_CHANNEL_TIMEZONE = "timezone";
-    // public static final String HOUSEHOLD_CHANNEL_TIMEZONE_UTC_OFFSET = "timezoneUTCOffset";
     public static final String HOUSEHOLD_CHANNEL_CREATED_AT = "createdAt";
     public static final String HOUSEHOLD_CHANNEL_UPDATED_AT = "updatedAt";
     public static final String HOUSEHOLD_CHANNEL_USER_NAME = "userName";

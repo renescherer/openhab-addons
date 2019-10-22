@@ -72,7 +72,7 @@ public class SurePetcareBridgeHandler extends BaseBridgeHandler {
             logger.warn("Setting thing '{}' to OFFLINE: Parameter 'password' and 'username' must be configured.",
                     getThing().getUID());
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "@text/offline.conf-error-missing-password");
+                    "@text/offline.conf-error-missing-username-or-password");
         } else {
             String username = (String) config.get(USERNAME);
             String password = (String) config.get(PASSWORD);

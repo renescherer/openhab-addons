@@ -157,7 +157,7 @@ public class SurePetcareAPIHelper {
                 pet.setPetStatus(gson.fromJson(getDataFromApi(url), SurePetcarePetStatus.class));
             }
         } catch (JsonSyntaxException | SurePetcareApiException e) {
-            logger.warn("Exception caught during topology cache update: {}", e.getMessage());
+            logger.warn("Exception caught during pet status update: {}", e.getMessage());
         }
     }
 
