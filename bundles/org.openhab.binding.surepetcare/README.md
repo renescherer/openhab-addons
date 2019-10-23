@@ -181,13 +181,13 @@ Channel names in **bold** are read/write, everything else is read-only
 ### Things configuration
 
 ```
-Bridge surepetcare:bridge:bridge1 "Demo API Bridge" [ username="<USERNAME>", password="<PASSWORD>", refresh_interval_topology=36000, refresh_interval_location=300 ]
+Bridge surepetcare:bridge:bridge1 "Demo API Bridge" @ "SurePetcare" [ username="<USERNAME>", password="<PASSWORD>", refresh_interval_topology=36000, refresh_interval_status=300 ]
 {
-  Thing household     45237  "My Household"
-  Thing hubDevice     439862 "My SurePetcare Hub"
-  Thing flapDevice    316524 "My Backdoor Cat Flap"
-  Thing feederDevice  123456 "My Pet Feeder"
-  Thing pet           60487  "My Cat"
+  Thing household     45237  "My Household" @ "SurePetcare"
+  Thing hubDevice     439862 "My SurePetcare Hub" @ "SurePetcare Devices"
+  Thing flapDevice    316524 "My Backdoor Cat Flap" @ "SurePetcare Devices"
+  Thing feederDevice  123456 "My Pet Feeder" @ "SurePetcare Devices"
+  Thing pet           60487  "My Cat" @ "SurePetcare Pets"
 }
 ```
 
@@ -274,11 +274,6 @@ sitemap surepetcare label="Sure Petcare Sitemap"
 TODO
 
 ```
-
-### Transform Maps
-
-Several of the channels are of "code"-type, i.e. they map back to a human readable value such as Locking Mode, Pet Location etc. 
-To allow language independent values in either items or sitemap, the MAP transformation bundle should be installed and a number of maps. The maps are currently available in the code base (src/main/resources/transform) and in the bundle jar.
  
 ## Troubleshooting
 
