@@ -64,7 +64,7 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        logger.debug("PetHandler handleCommand called with command: {}", command.toString());
+        logger.debug("PetHandler handleCommand called with command: {}", command);
 
         if (command instanceof RefreshType) {
             updateThing();
@@ -89,7 +89,7 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
                                     logger.warn("Invalid location id: {}, ignoring command", newLocationIdStr);
                                 } catch (SurePetcareApiException e) {
                                     logger.warn("Error from SurePetcare API. Can't update location {} for pet {}",
-                                            newLocationIdStr, pet.toString());
+                                            newLocationIdStr, pet);
                                 }
                             }
                         }
@@ -106,7 +106,7 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
         synchronized (petcareAPI) {
             SurePetcarePet pet = petcareAPI.getPet(thing.getUID().getId());
             if (pet != null) {
-                logger.debug("Updating all thing channels for pet : {}", pet.toString());
+                logger.debug("Updating all thing channels for pet : {}", pet);
                 updateState(PET_CHANNEL_ID, new DecimalType(pet.getId()));
                 if (pet.getName() != null) {
                     updateState(PET_CHANNEL_NAME, new StringType(pet.getName()));
@@ -149,15 +149,19 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
                 if (pet.getPetStatus().getActivity().getDeviceId() != null) {
                     SurePetcareDevice device = petcareAPI
                             .getDevice(pet.getPetStatus().getActivity().getDeviceId().toString());
-                    updateState(PET_CHANNEL_LOCATION_CHANGED_THROUGH, new StringType(device.getName()));
+                    if (device != null) {
+                        updateState(PET_CHANNEL_LOCATION_CHANGED_THROUGH, new StringType(device.getName()));
+                    }
                 } else if (pet.getPetStatus().getActivity().getUserId() != null) {
                     SurePetcareHousehold user = petcareAPI.getHousehold(pet.getHouseholdId().toString());
-                    int numUsers = user.getHouseholdUsers().size();
-                    for (int i = 0; (i < numUsers); i++) {
-                        if (pet.getPetStatus().getActivity().getUserId()
-                                .equals(user.getHouseholdUsers().get(i).getUser().getUserId())) {
-                            updateState(PET_CHANNEL_LOCATION_CHANGED_THROUGH,
-                                    new StringType(user.getHouseholdUsers().get(i).getUser().getUserName().toString()));
+                    if (user != null) {
+                        int numUsers = user.getHouseholdUsers().size();
+                        for (int i = 0; (i < numUsers); i++) {
+                            if (pet.getPetStatus().getActivity().getUserId()
+                                    .equals(user.getHouseholdUsers().get(i).getUser().getUserId())) {
+                                updateState(PET_CHANNEL_LOCATION_CHANGED_THROUGH, new StringType(
+                                        user.getHouseholdUsers().get(i).getUser().getUserName().toString()));
+                            }
                         }
                     }
                 }
@@ -210,12 +214,9 @@ public class SurePetcarePetHandler extends SurePetcareBaseObjectHandler {
             return new RawType(IMAGE_CACHE.get(url), JPEG_CONTENT_TYPE);
         } else {
             RawType image = downloadPetPhoto(url);
-            if (image != null) {
-                IMAGE_CACHE.put(url, image.getBytes());
-                return image;
-            }
+            IMAGE_CACHE.put(url, image.getBytes());
+            return image;
         }
-        return null;
     }
 
     private static RawType downloadPetPhoto(String url) {
