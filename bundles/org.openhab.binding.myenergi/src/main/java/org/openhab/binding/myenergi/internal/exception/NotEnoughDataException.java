@@ -10,33 +10,33 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.myenergi.internal;
+package org.openhab.binding.myenergi.internal.exception;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * The {@link MyEnergiApiException} is thrown during API interactions.
+ * The {@link NotEnoughDataException} is thrown if not enough data is available for the function to be performed.
  *
  * @author Rene Scherer - Initial contribution
  */
 @NonNullByDefault
-public class MyEnergiApiException extends Exception {
+public class NotEnoughDataException extends MyEnergiException {
 
-    private static final long serialVersionUID = -7851429813904230535L;
+    private static final long serialVersionUID = 4808345987650248340L;
 
-    public MyEnergiApiException() {
+    public NotEnoughDataException() {
         super();
     }
 
-    public MyEnergiApiException(String message) {
+    public NotEnoughDataException(String message) {
         super(message);
     }
 
-    public MyEnergiApiException(Throwable cause) {
+    public NotEnoughDataException(Throwable cause) {
         super(cause);
     }
 
-    public MyEnergiApiException(String message, Throwable cause) {
+    public NotEnoughDataException(String message, Throwable cause) {
         super(message, cause);
     }
 }

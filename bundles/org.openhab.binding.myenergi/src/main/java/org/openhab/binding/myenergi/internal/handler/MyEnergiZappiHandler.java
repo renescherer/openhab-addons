@@ -18,6 +18,7 @@ import static org.openhab.core.library.unit.Units.*;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
+import org.openhab.binding.myenergi.internal.exception.RecordNotFoundException;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.types.Command;
@@ -52,8 +53,8 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
 
     @Override
     protected void updateThing() {
-        ZappiSummary device = apiClient.getData().getZappiBySerialNumber(thing.getUID().getId());
-        if (device != null) {
+        try {
+            ZappiSummary device = apiClient.getData().getZappiBySerialNumber(thing.getUID().getId());
             logger.debug("Updating all thing channels for device : {}", device.serialNumber);
 
             updateDateTimeState(ZAPPI_CHANNEL_LAST_UPDATED_TIME, device.getLastUpdateTime());
@@ -94,9 +95,7 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
             updatePowerState(ZAPPI_CHANNEL_CLAMP_POWER_4, device.clampPower4, WATT);
             updatePowerState(ZAPPI_CHANNEL_CLAMP_POWER_5, device.clampPower5, WATT);
             updatePowerState(ZAPPI_CHANNEL_CLAMP_POWER_6, device.clampPower6, WATT);
-        } else
-
-        {
+        } catch (RecordNotFoundException e) {
             logger.debug("Trying to update unknown device: {}", thing.getUID().getId());
         }
     }
