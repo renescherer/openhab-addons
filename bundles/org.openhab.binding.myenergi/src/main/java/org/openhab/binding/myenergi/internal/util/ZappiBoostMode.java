@@ -10,23 +10,27 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.myenergi.internal.utils;
+package org.openhab.binding.myenergi.internal.util;
 
 /**
- * The {@link ZappiChargingMode} enumeration is used to model the various Zappi charging modes.
+ * The {@link ZappiBoostMode} enumeration is used to model the various Zappi boost charging modes.
  *
  * @author Rene Scherer - Initial contribution
  *
  */
-public enum ZappiChargingMode {
-    BOOST(0),
-    FAST(1),
-    ECO(2),
-    ECO_PLUS(3);
+public enum ZappiBoostMode {
+    // stops the current boost cycle
+    STOP(2),
+
+    // starts a new boost cycle immediately up to the given KWh charge
+    NORMAL(10),
+
+    // starts a new smart boost cycle up to given KWh charge and departure time
+    SMART(11);
 
     private final int intValue;
 
-    ZappiChargingMode(final int intValue) {
+    ZappiBoostMode(final int intValue) {
         this.intValue = intValue;
     }
 

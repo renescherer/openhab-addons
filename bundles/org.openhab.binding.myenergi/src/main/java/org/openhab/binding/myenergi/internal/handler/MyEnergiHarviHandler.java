@@ -18,6 +18,7 @@ import static org.openhab.core.library.unit.Units.WATT;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
 import org.openhab.binding.myenergi.internal.dto.HarviSummary;
+import org.openhab.binding.myenergi.internal.exception.RecordNotFoundException;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.types.Command;
@@ -48,8 +49,9 @@ public class MyEnergiHarviHandler extends MyEnergiBaseDeviceHandler {
 
     @Override
     protected void updateThing() {
-        HarviSummary device = apiClient.getData().getHarviBySerialNumber(thing.getUID().getId());
-        if (device != null) {
+        HarviSummary device;
+        try {
+            device = apiClient.getData().getHarviBySerialNumber(thing.getUID().getId());
             logger.debug("Updating all thing channels for device : {}", device.serialNumber);
 
             updateDateTimeState(HARVI_CHANNEL_LAST_UPDATED_TIME, device.getLastUpdateTime());
@@ -65,8 +67,9 @@ public class MyEnergiHarviHandler extends MyEnergiBaseDeviceHandler {
             updateIntegerState(HARVI_CHANNEL_CLAMP_PHASE_1, device.clampPhase1);
             updateIntegerState(HARVI_CHANNEL_CLAMP_PHASE_2, device.clampPhase2);
             updateIntegerState(HARVI_CHANNEL_CLAMP_PHASE_3, device.clampPhase3);
-        } else {
-            logger.debug("Trying to update unknown device: {}", thing.getUID().getId());
+        } catch (RecordNotFoundException e) {
+            logger.warn("Trying to update unknown device: {}", thing.getUID().getId());
         }
+
     }
 }
