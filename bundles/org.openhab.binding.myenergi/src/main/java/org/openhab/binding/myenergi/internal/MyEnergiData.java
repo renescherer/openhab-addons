@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.myenergi.internal.dto.EddiSummary;
 import org.openhab.binding.myenergi.internal.dto.HarviSummary;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
+import org.openhab.binding.myenergi.internal.exception.RecordNotFoundException;
 
 /**
  * @author scherer
@@ -65,31 +65,31 @@ public class MyEnergiData {
         this.asn = asn;
     }
 
-    public @Nullable HarviSummary getHarviBySerialNumber(final String serialNumber) {
+    public HarviSummary getHarviBySerialNumber(final String serialNumber) throws RecordNotFoundException {
         for (HarviSummary device : harvis) {
             if (serialNumber.equals(device.serialNumber)) {
                 return device;
             }
         }
-        return null;
+        throw new RecordNotFoundException();
     }
 
-    public @Nullable ZappiSummary getZappiBySerialNumber(final String serialNumber) {
+    public ZappiSummary getZappiBySerialNumber(final String serialNumber) throws RecordNotFoundException {
         for (ZappiSummary device : zappis) {
             if (serialNumber.equals(device.serialNumber)) {
                 return device;
             }
         }
-        return null;
+        throw new RecordNotFoundException();
     }
 
-    public @Nullable EddiSummary getEddiBySerialNumber(final String serialNumber) {
+    public EddiSummary getEddiBySerialNumber(final String serialNumber) throws RecordNotFoundException {
         for (EddiSummary device : eddis) {
             if (serialNumber.equals(device.serialNumber)) {
                 return device;
             }
         }
-        return null;
+        throw new RecordNotFoundException();
     }
 
     public void clear() {

@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.myenergi.internal.handler;
 
-import static org.openhab.binding.myenergi.internal.MyEnergiBindingConstants.*;
+import static org.openhab.binding.myenergi.internal.MyEnergiBindingConstants.BRIDGE_CHANNEL_REFRESH;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -22,11 +22,11 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
-import org.openhab.binding.myenergi.internal.MyEnergiApiException;
 import org.openhab.binding.myenergi.internal.MyEnergiConfiguration;
 import org.openhab.binding.myenergi.internal.MyEnergiDiscoveryService;
 import org.openhab.binding.myenergi.internal.dto.HarviSummary;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
+import org.openhab.binding.myenergi.internal.exception.ApiException;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
@@ -63,14 +63,9 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
         return thing.getUID();
     }
 
-    public boolean isOnline() {
-        return apiClient.isOnline();
-    }
-
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (command instanceof RefreshType) {
-            updateState(BRIDGE_CHANNEL_ONLINE, OnOffType.from(apiClient.isOnline()));
             updateState(BRIDGE_CHANNEL_REFRESH, OnOffType.OFF);
         } else {
             switch (channelUID.getId()) {
@@ -78,7 +73,7 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
                     if ("ON".equals(command.toString())) {
                         try {
                             apiClient.updateTopologyCache();
-                        } catch (MyEnergiApiException e) {
+                        } catch (ApiException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
@@ -93,7 +88,6 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
     public void initialize() {
         logger.debug("Initializing Sure Petcare bridge handler.");
         MyEnergiConfiguration config = getConfigAs(MyEnergiConfiguration.class);
-        updateState(BRIDGE_CHANNEL_ONLINE, OnOffType.OFF);
 
         if (config.username != null && config.password != null) {
             updateStatus(ThingStatus.UNKNOWN);
@@ -103,8 +97,7 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
                 apiClient.updateTopologyCache();
                 logger.debug("Cache update successful, setting bridge status to ONLINE");
                 updateStatus(ThingStatus.ONLINE);
-                updateState(BRIDGE_CHANNEL_ONLINE, OnOffType.ON);
-            } catch (MyEnergiApiException e) {
+            } catch (ApiException e) {
                 logger.warn("Invalid setting for topology refresh interval");
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                         "@text/offline.conf-error-invalid-refresh-intervals");
@@ -127,9 +120,8 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
                         apiClient.updateTopologyCache();
                         if (getThing().getStatus() == ThingStatus.OFFLINE) {
                             updateStatus(ThingStatus.ONLINE);
-                            updateState(BRIDGE_CHANNEL_ONLINE, OnOffType.ON);
                         }
-                    } catch (MyEnergiApiException e) {
+                    } catch (ApiException e) {
                         logger.warn("Error when updating tolopogy cache");
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                                 "@text/offline.communication-error");
@@ -152,8 +144,6 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
     @SuppressWarnings("null")
     @Override
     public void dispose() {
-        updateState(BRIDGE_CHANNEL_ONLINE, OnOffType.OFF);
-
         if (topologyPollingJob != null && !topologyPollingJob.isCancelled()) {
             topologyPollingJob.cancel(true);
             topologyPollingJob = null;
