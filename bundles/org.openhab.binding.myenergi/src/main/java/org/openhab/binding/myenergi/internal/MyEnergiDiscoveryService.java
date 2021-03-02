@@ -120,11 +120,9 @@ public class MyEnergiDiscoveryService extends AbstractDiscoveryService
         logger.debug("Starting MyEnergi discovery scan");
         // If the bridge is not online no other thing devices can be found, so no reason to scan at this moment.
         removeOlderResults(getTimestampOfLastScan());
-        if (bridgeHandler.isOnline()) {
-            logger.debug("Starting device discovery for bridge {}", bridgeUID);
-            bridgeHandler.listZappis().forEach(this::zappiDiscovered);
-            bridgeHandler.listHarvis().forEach(this::harviDiscovered);
-        }
+        logger.debug("Starting device discovery for bridge {}", bridgeUID);
+        bridgeHandler.listZappis().forEach(this::zappiDiscovered);
+        bridgeHandler.listHarvis().forEach(this::harviDiscovered);
     }
 
     private void zappiDiscovered(ZappiSummary device) {
