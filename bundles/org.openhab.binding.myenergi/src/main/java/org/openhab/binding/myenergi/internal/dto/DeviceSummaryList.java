@@ -43,9 +43,9 @@ public class DeviceSummaryList extends ArrayList<DeviceSummary> {
                 }
                 builder.append("]");
             }
-            if (sum.asn != null) {
+            if (sum.activeServer != null) {
                 builder.append(",");
-                builder.append(sum.asn);
+                builder.append(sum.activeServer);
             }
         }
         builder.append("]");

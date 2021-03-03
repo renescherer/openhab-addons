@@ -12,15 +12,18 @@
  */
 package org.openhab.binding.myenergi.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
- * The {@link myenergiConfiguration} class contains fields mapping thing configuration parameters.
+ * The {@link MyEnergiBridgeConfiguration} class contains fields mapping thing configuration parameters.
  *
  * @author Rene Scherer - Initial contribution
  */
-public class MyEnergiConfiguration {
+@NonNullByDefault
+public class MyEnergiBridgeConfiguration {
 
-    public String username;
-    public String password;
+    public String username = "";
+    public String password = "";
 
-    public Long refreshIntervalTopology;
+    public int refreshInterval = 24; // 24 hours
 }

@@ -107,6 +107,10 @@ public class ZappiSummary extends BaseSummary {
     @SerializedName("ectp6")
     public Integer clampPower6;
 
+    public ZappiSummary(long serialNumber) {
+        super(serialNumber);
+    }
+
     @Override
     public String toString() {
         return "ZappiSummary [serialNumber=" + serialNumber + ", dat=" + dat + ", tim=" + tim + ", dst=" + dst
@@ -127,28 +131,27 @@ public class ZappiSummary extends BaseSummary {
 
     public void toLogger() {
         logger.info("ZappiSummary:");
-        logger.info("serialNumber=" + serialNumber);
-        logger.info("date/time=" + dat + " " + tim + ", dst=" + dst);
-        logger.info("supplyVoltage=" + supplyVoltage + ", supplyFrequency=" + supplyFrequency + ", numberOfPhases="
-                + numberOfPhases);
-        logger.info("lockingMode=" + lockingMode);
-        logger.info("chargingMode=" + chargingMode);
-        logger.info("status=" + status);
-        logger.info("plugStatus=" + plugStatus);
-        logger.info("commandTries=" + commandTries);
-        logger.info("diverterPriority=" + diverterPriority);
-        logger.info("minimumGreenLevel=" + minimumGreenLevel);
-        logger.info(
-                "gridPower=" + gridPower + ", generatedPower=" + generatedPower + ", divertedPower=" + divertedPower);
-        logger.info("chargeAdded=" + chargeAdded);
-        logger.info("smartBoostTime=" + smartBoostHour + ":" + smartBoostMinute + ", Charge=" + smartBoostCharge);
-        logger.info("timedBoostTime=" + timedBoostHour + ":" + timedBoostMinute + ", Charge=" + timedBoostCharge);
-        logger.info("clamp1=" + clampName1 + ", power=" + clampPower1);
-        logger.info("clamp2=" + clampName2 + ", power=" + clampPower2);
-        logger.info("clamp3=" + clampName3 + ", power=" + clampPower3);
-        logger.info("clamp4=" + clampName4 + ", power=" + clampPower4);
-        logger.info("clamp5=" + clampName5 + ", power=" + clampPower5);
-        logger.info("clamp6=" + clampName6 + ", power=" + clampPower6);
-        logger.info("firmwareVersion=" + firmwareVersion);
+        logger.info("serialNumber={}", serialNumber);
+        logger.info("date/time={} {}, dst={}", dat, tim, dst);
+        logger.info("supplyVoltage={}, supplyFrequency={}, numberOfPhases={}", supplyVoltage, supplyFrequency,
+                numberOfPhases);
+        logger.info("lockingMode={}", lockingMode);
+        logger.info("chargingMode={}", chargingMode);
+        logger.info("status={}", status);
+        logger.info("plugStatus={}", plugStatus);
+        logger.info("commandTries={}", commandTries);
+        logger.info("diverterPriority={}", diverterPriority);
+        logger.info("minimumGreenLevel={}", minimumGreenLevel);
+        logger.info("gridPower={}, generatedPower={}, divertedPower={}", gridPower, generatedPower, divertedPower);
+        logger.info("chargeAdded={}", chargeAdded);
+        logger.info("smartBoostTime={}:{}, Charge={}", smartBoostHour, smartBoostMinute, smartBoostCharge);
+        logger.info("timedBoostTime={}:{}, Charge={}", timedBoostHour, timedBoostMinute, timedBoostCharge);
+        logger.info("clamp1={}, power={}", clampName1, clampPower1);
+        logger.info("clamp2={}, power={}", clampName2, clampPower2);
+        logger.info("clamp3={}, power={}", clampName3, clampPower3);
+        logger.info("clamp4={}, power={}", clampName4, clampPower4);
+        logger.info("clamp5={}, power={}", clampName5, clampPower5);
+        logger.info("clamp6={}, power={}", clampName6, clampPower6);
+        logger.info("firmwareVersion={}", firmwareVersion);
     }
 }
