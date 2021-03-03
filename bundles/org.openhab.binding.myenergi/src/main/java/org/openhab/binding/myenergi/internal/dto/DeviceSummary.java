@@ -19,28 +19,32 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * The {@link DeviceSummary} is a DTO class used to represent the highlevel status of all myenergi devices. It's
- * used to
- * deserialize JSON API results.
+ * used to deserialize JSON API results.
+ *
+ * A device summary can either be a list of eddis, zappis, harvis or
  *
  * @author Rene Scherer - Initial contribution
  */
 public class DeviceSummary {
 
-    // private List<EddiSummary> eddi = new ArrayList<>();
-
-    @SerializedName("harvi")
-    public List<HarviSummary> harvis = new ArrayList<>();
+    @SerializedName("eddi")
+    public List<EddiSummary> eddis = new ArrayList<>();
 
     @SerializedName("zappi")
     public List<ZappiSummary> zappis = new ArrayList<>();
 
-    @SerializedName("eddi")
-    public List<EddiSummary> eddis = new ArrayList<>();
+    @SerializedName("harvi")
+    public List<HarviSummary> harvis = new ArrayList<>();
 
-    public String asn;
+    @SerializedName("asn")
+    public String activeServer;
+
+    @SerializedName("fwv")
+    public String firmwareVersion = "";
 
     @Override
     public String toString() {
-        return "DeviceSummary [harvis=" + harvis + ", zappis=" + zappis + ", asn=" + asn + "]";
+        return "DeviceSummary [harvis=" + harvis + ", zappis=" + zappis + ", activeServer=" + activeServer
+                + ", firmwareVersion=" + firmwareVersion + "]";
     }
 }

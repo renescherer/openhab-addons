@@ -18,6 +18,7 @@ import static org.openhab.core.library.unit.Units.WATT;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
 import org.openhab.binding.myenergi.internal.dto.HarviSummary;
+import org.openhab.binding.myenergi.internal.exception.ApiException;
 import org.openhab.binding.myenergi.internal.exception.RecordNotFoundException;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
@@ -51,7 +52,7 @@ public class MyEnergiHarviHandler extends MyEnergiBaseDeviceHandler {
     protected void updateThing() {
         HarviSummary device;
         try {
-            device = apiClient.getData().getHarviBySerialNumber(thing.getUID().getId());
+            device = apiClient.getData().getHarviBySerialNumber(Long.parseLong(thing.getUID().getId()));
             logger.debug("Updating all thing channels for device : {}", device.serialNumber);
 
             updateDateTimeState(HARVI_CHANNEL_LAST_UPDATED_TIME, device.getLastUpdateTime());
@@ -70,6 +71,14 @@ public class MyEnergiHarviHandler extends MyEnergiBaseDeviceHandler {
         } catch (RecordNotFoundException e) {
             logger.warn("Trying to update unknown device: {}", thing.getUID().getId());
         }
+    }
 
+    @Override
+    protected void refreshMeasurements() throws ApiException {
+        try {
+            apiClient.updateHarviSummary(serialNumber);
+        } catch (RecordNotFoundException e) {
+            logger.warn("invalid serial number: {}", serialNumber, e);
+        }
     }
 }

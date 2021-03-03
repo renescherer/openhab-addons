@@ -12,8 +12,6 @@
  */
 package org.openhab.binding.myenergi.internal.handler;
 
-import static org.openhab.binding.myenergi.internal.MyEnergiBindingConstants.BRIDGE_CHANNEL_REFRESH;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ScheduledFuture;
@@ -22,12 +20,12 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
-import org.openhab.binding.myenergi.internal.MyEnergiConfiguration;
+import org.openhab.binding.myenergi.internal.MyEnergiBridgeConfiguration;
 import org.openhab.binding.myenergi.internal.MyEnergiDiscoveryService;
 import org.openhab.binding.myenergi.internal.dto.HarviSummary;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
 import org.openhab.binding.myenergi.internal.exception.ApiException;
-import org.openhab.core.library.types.OnOffType;
+import org.openhab.binding.myenergi.internal.exception.AuthenticationException;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.ThingStatus;
@@ -36,7 +34,6 @@ import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.binding.BaseBridgeHandler;
 import org.openhab.core.thing.binding.ThingHandlerService;
 import org.openhab.core.types.Command;
-import org.openhab.core.types.RefreshType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +49,7 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
     private final Logger logger = LoggerFactory.getLogger(MyEnergiBridgeHandler.class);
 
     private final MyEnergiApiClient apiClient;
-    private @Nullable ScheduledFuture<?> topologyPollingJob = null;
+    private @Nullable ScheduledFuture<?> devicePollingJob = null;
 
     public MyEnergiBridgeHandler(Bridge thing, MyEnergiApiClient apiClient) {
         super(thing);
@@ -64,76 +61,59 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
     }
 
     @Override
-    public void handleCommand(ChannelUID channelUID, Command command) {
-        if (command instanceof RefreshType) {
-            updateState(BRIDGE_CHANNEL_REFRESH, OnOffType.OFF);
-        } else {
-            switch (channelUID.getId()) {
-                case BRIDGE_CHANNEL_REFRESH:
-                    if ("ON".equals(command.toString())) {
-                        try {
-                            apiClient.updateTopologyCache();
-                        } catch (ApiException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        updateState(BRIDGE_CHANNEL_REFRESH, OnOffType.OFF);
+    public void initialize() {
+        logger.debug("Initializing MyEnergiBridgeHandler");
+        MyEnergiBridgeConfiguration config = getConfigAs(MyEnergiBridgeConfiguration.class);
+
+        if (config.username.isEmpty() || config.password.isEmpty()) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "@text/offline.conf-error-missing-username-or-password");
+            return;
+        }
+        if (config.refreshInterval < 1) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "@text/offline.conf-error-invalid-refresh-intervals");
+            return;
+        }
+
+        updateStatus(ThingStatus.UNKNOWN);
+        try {
+            logger.debug("Login to MyEnergi API with username: {}", config.username);
+            apiClient.setCredentials(config.username, config.password);
+            apiClient.updateTopologyCache();
+            logger.debug("Cache update successful, setting bridge status to ONLINE");
+            updateStatus(ThingStatus.ONLINE);
+        } catch (AuthenticationException e) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "@text/offline.conf-error-authentication");
+            return;
+        } catch (ApiException e) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                    "@text/offline.comm-error-general");
+        }
+
+        ScheduledFuture<?> job = devicePollingJob;
+        if (job == null || job.isCancelled()) {
+            devicePollingJob = scheduler.scheduleWithFixedDelay(() -> {
+                try {
+                    refreshDevices();
+                    if ((getThing().getStatus() == ThingStatus.OFFLINE) && (getThing().getStatusInfo()
+                            .getStatusDetail() == ThingStatusDetail.COMMUNICATION_ERROR)) {
+                        // if previous status was COMMUNICATION_ERROR, we now reestablished the comms
+                        updateStatus(ThingStatus.ONLINE);
                     }
-                    break;
-            }
+                } catch (ApiException e) {
+                    logger.warn("Exception from API - {}", getThing().getUID(), e);
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                            "@text/offline.comm-error-general");
+                }
+            }, config.refreshInterval, config.refreshInterval, TimeUnit.HOURS);
+            logger.debug("Bridge device topology polling job every {} hours", config.refreshInterval);
         }
     }
 
     @Override
-    public void initialize() {
-        logger.debug("Initializing Sure Petcare bridge handler.");
-        MyEnergiConfiguration config = getConfigAs(MyEnergiConfiguration.class);
-
-        if (config.username != null && config.password != null) {
-            updateStatus(ThingStatus.UNKNOWN);
-            try {
-                logger.debug("Login to MyEnergi API with username: {}", config.username);
-                apiClient.setCredentials(config.username, config.password);
-                apiClient.updateTopologyCache();
-                logger.debug("Cache update successful, setting bridge status to ONLINE");
-                updateStatus(ThingStatus.ONLINE);
-            } catch (ApiException e) {
-                logger.warn("Invalid setting for topology refresh interval");
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                        "@text/offline.conf-error-invalid-refresh-intervals");
-            }
-        } else {
-            logger.warn("Setting thing '{}' to OFFLINE: Parameter 'password' and 'username' must be configured.",
-                    getThing().getUID());
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "@text/offline.conf-error-missing-username-or-password");
-        }
-
-        if (config.refreshIntervalTopology != null) {
-            boolean noJob = true;
-            if (topologyPollingJob != null) {
-                noJob = topologyPollingJob.isCancelled();
-            }
-            if (noJob) {
-                topologyPollingJob = scheduler.scheduleWithFixedDelay(() -> {
-                    try {
-                        apiClient.updateTopologyCache();
-                        if (getThing().getStatus() == ThingStatus.OFFLINE) {
-                            updateStatus(ThingStatus.ONLINE);
-                        }
-                    } catch (ApiException e) {
-                        logger.warn("Error when updating tolopogy cache");
-                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                                "@text/offline.communication-error");
-                    }
-                }, config.refreshIntervalTopology, config.refreshIntervalTopology, TimeUnit.SECONDS);
-                logger.debug("Bridge topology polling job every {} seconds", config.refreshIntervalTopology);
-            }
-        } else {
-            logger.warn("Invalid setting for topology refresh interval");
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "@text/offline.conf-error-invalid-refresh-intervals");
-        }
+    public void handleCommand(ChannelUID channelUID, Command command) {
     }
 
     @Override
@@ -141,13 +121,13 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
         return Collections.singleton(MyEnergiDiscoveryService.class);
     }
 
-    @SuppressWarnings("null")
     @Override
     public void dispose() {
-        if (topologyPollingJob != null && !topologyPollingJob.isCancelled()) {
-            topologyPollingJob.cancel(true);
-            topologyPollingJob = null;
-            logger.debug("Stopped pet background polling process");
+        ScheduledFuture<?> job = devicePollingJob;
+        if (job != null && !job.isCancelled()) {
+            job.cancel(true);
+            devicePollingJob = null;
+            logger.debug("Stopped MyEnergi device topology job");
         }
     }
 
@@ -157,5 +137,9 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
 
     public Iterable<HarviSummary> listHarvis() {
         return apiClient.getData().getHarvis();
+    }
+
+    private void refreshDevices() throws ApiException {
+        apiClient.updateTopologyCache();
     }
 }

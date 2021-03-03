@@ -10,12 +10,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.myenergi.internal;
+package org.openhab.binding.myenergi.internal.util;
 
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.myenergi.internal.MyEnergiBindingConstants;
 import org.openhab.binding.myenergi.internal.dto.ZappiHourlyHistory;
 import org.openhab.binding.myenergi.internal.dto.ZappiHourlyHistoryEntry;
 
@@ -27,9 +30,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * @author scherer
+ * The {@link ZappiHourlyHistoryTypeAdapter} is a GSON type adapter for {@link ZappiHourlyHistory}.
  *
+ * @author Rene Scherer - Initial contribution
  */
+@NonNullByDefault
 public class ZappiHourlyHistoryTypeAdapter implements JsonDeserializer<ZappiHourlyHistory> {
 
     /*
@@ -37,8 +42,8 @@ public class ZappiHourlyHistoryTypeAdapter implements JsonDeserializer<ZappiHour
      * {"hr":1,"dow":"Sat","dom":28,"mon":11,"yr":2020,"imp":1652160}]}
      */
     @Override
-    public ZappiHourlyHistory deserialize(JsonElement element, Type typeOfT, JsonDeserializationContext context)
-            throws JsonParseException {
+    public @Nullable ZappiHourlyHistory deserialize(JsonElement element, Type typeOfT,
+            JsonDeserializationContext context) throws JsonParseException {
         ZappiHourlyHistory history = new ZappiHourlyHistory();
 
         JsonObject parentJsonObject = element.getAsJsonObject();

@@ -18,6 +18,7 @@ import static org.openhab.core.library.unit.Units.*;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
+import org.openhab.binding.myenergi.internal.exception.ApiException;
 import org.openhab.binding.myenergi.internal.exception.RecordNotFoundException;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
@@ -54,8 +55,8 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
     @Override
     protected void updateThing() {
         try {
-            ZappiSummary device = apiClient.getData().getZappiBySerialNumber(thing.getUID().getId());
-            logger.debug("Updating all thing channels for device : {}", device.serialNumber);
+            logger.debug("Updating all thing channels for device : {}", serialNumber);
+            ZappiSummary device = apiClient.getData().getZappiBySerialNumber(serialNumber);
 
             updateDateTimeState(ZAPPI_CHANNEL_LAST_UPDATED_TIME, device.getLastUpdateTime());
             updateElectricPotentialState(ZAPPI_CHANNEL_SUPPLY_VOLTAGE, device.supplyVoltage, VOLT);
@@ -97,6 +98,15 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
             updatePowerState(ZAPPI_CHANNEL_CLAMP_POWER_6, device.clampPower6, WATT);
         } catch (RecordNotFoundException e) {
             logger.debug("Trying to update unknown device: {}", thing.getUID().getId());
+        }
+    }
+
+    @Override
+    protected void refreshMeasurements() throws ApiException {
+        try {
+            apiClient.updateZappiSummary(serialNumber);
+        } catch (RecordNotFoundException e) {
+            logger.warn("invalid serial number: {}", serialNumber, e);
         }
     }
 }
