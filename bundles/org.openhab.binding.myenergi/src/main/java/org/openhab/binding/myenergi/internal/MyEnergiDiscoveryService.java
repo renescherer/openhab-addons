@@ -108,8 +108,9 @@ public class MyEnergiDiscoveryService extends AbstractDiscoveryService
 
     @Override
     protected void stopBackgroundDiscovery() {
-        if (discoveryJob != null) {
-            discoveryJob.cancel(true);
+        ScheduledFuture<?> job = discoveryJob;
+        if (job != null) {
+            job.cancel(true);
             discoveryJob = null;
             logger.debug("Stopped MyEnergi device discovery");
         }
@@ -130,7 +131,7 @@ public class MyEnergiDiscoveryService extends AbstractDiscoveryService
         ThingUID thingsUID = new ThingUID(THING_TYPE_ZAPPI, bridgeUID, device.serialNumber.toString());
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.putAll(device.getThingProperties());
-        thingDiscovered(DiscoveryResultBuilder.create(thingsUID).withLabel(device.serialNumber)
+        thingDiscovered(DiscoveryResultBuilder.create(thingsUID).withLabel("MyEnergi Zappi" + device.serialNumber)
                 .withProperties(properties).withBridge(bridgeUID).build());
     }
 
@@ -139,7 +140,7 @@ public class MyEnergiDiscoveryService extends AbstractDiscoveryService
         ThingUID thingsUID = new ThingUID(THING_TYPE_HARVI, bridgeUID, device.serialNumber.toString());
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.putAll(device.getThingProperties());
-        thingDiscovered(DiscoveryResultBuilder.create(thingsUID).withLabel(device.serialNumber)
+        thingDiscovered(DiscoveryResultBuilder.create(thingsUID).withLabel("MyEnergi Harvi" + device.serialNumber)
                 .withProperties(properties).withBridge(bridgeUID).build());
     }
 }

@@ -32,7 +32,7 @@ import com.google.gson.annotations.SerializedName;
 public class BaseSummary {
 
     @SerializedName("sno")
-    public String serialNumber = "";
+    public Long serialNumber = 0L;
 
     public String dat; // raw date in DD-MM-YYYY format
     public String tim; // raw time in HH:MM:SS format
@@ -45,6 +45,10 @@ public class BaseSummary {
         super();
     }
 
+    public BaseSummary(long serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
     public ZonedDateTime getLastUpdateTime() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         LocalDateTime ldt = LocalDateTime.parse(dat + " " + tim, formatter);
@@ -54,8 +58,38 @@ public class BaseSummary {
 
     public Map<@NonNull String, String> getThingProperties() {
         Map<String, String> properties = new HashMap<String, String>();
-        properties.put("serialNumber", serialNumber);
+        properties.put("serialNumber", String.valueOf(serialNumber));
         properties.put("firmwareVersion", firmwareVersion);
         return properties;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((serialNumber == null) ? 0 : serialNumber.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        BaseSummary other = (BaseSummary) obj;
+        if (serialNumber == null) {
+            if (other.serialNumber != null) {
+                return false;
+            }
+        } else if (!serialNumber.equals(other.serialNumber)) {
+            return false;
+        }
+        return true;
     }
 }

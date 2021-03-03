@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.myenergi.internal.dto.ZappiHourlyHistory;
+import org.openhab.binding.myenergi.internal.util.ZappiHourlyHistoryTypeAdapter;
 import org.openhab.core.thing.ThingTypeUID;
 
 import com.google.gson.Gson;
@@ -47,10 +48,6 @@ public class MyEnergiBindingConstants {
     public static final Set<ThingTypeUID> BRIDGE_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_BRIDGE);
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<>(
             Arrays.asList(THING_TYPE_ZAPPI, THING_TYPE_EDDI, THING_TYPE_HARVI));
-
-    // Bridge Channel Names
-    public static final String BRIDGE_CHANNEL_ONLINE = "online";
-    public static final String BRIDGE_CHANNEL_REFRESH = "refresh";
 
     // Zappi Channel Names
     public static final String ZAPPI_CHANNEL_LAST_UPDATED_TIME = "lastUpdatedTime";

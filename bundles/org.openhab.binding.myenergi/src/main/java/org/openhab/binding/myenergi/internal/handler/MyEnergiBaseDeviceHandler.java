@@ -16,6 +16,8 @@ import static org.openhab.core.thing.ThingStatus.ONLINE;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.measure.Unit;
 import javax.measure.quantity.ElectricPotential;
@@ -26,6 +28,8 @@ import javax.measure.quantity.Power;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
+import org.openhab.binding.myenergi.internal.MyEnergiDeviceConfiguration;
+import org.openhab.binding.myenergi.internal.exception.ApiException;
 import org.openhab.core.cache.ExpiringCache;
 import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.DecimalType;
@@ -33,6 +37,8 @@ import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
@@ -51,8 +57,10 @@ public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler {
     private static final int UPDATE_THING_CACHE_TIMEOUT = 3000; // 3 secs
 
     private final Logger logger = LoggerFactory.getLogger(MyEnergiBaseDeviceHandler.class);
+    private @Nullable ScheduledFuture<?> measurementPollingJob = null;
 
     protected MyEnergiApiClient apiClient;
+    protected long serialNumber;
 
     protected ExpiringCache<Integer> updateThingCache = new ExpiringCache<Integer>(UPDATE_THING_CACHE_TIMEOUT,
             this::refreshCache);
@@ -64,7 +72,48 @@ public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
+        logger.debug("Initializing MyEnergiBaseDeviceHandler");
+
+        serialNumber = Long.parseLong(getThing().getUID().getId());
+
+        MyEnergiDeviceConfiguration config = getConfigAs(MyEnergiDeviceConfiguration.class);
+        if (config.refreshInterval < 10) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "@text/offline.conf-error-invalid-refresh-intervals");
+            return;
+        }
+
+        ScheduledFuture<?> job = measurementPollingJob;
+        if (job == null || job.isCancelled()) {
+            measurementPollingJob = scheduler.scheduleWithFixedDelay(() -> {
+                try {
+                    refreshMeasurements();
+                    updateThing();
+                    if ((getThing().getStatus() == ThingStatus.OFFLINE) && (getThing().getStatusInfo()
+                            .getStatusDetail() == ThingStatusDetail.COMMUNICATION_ERROR)) {
+                        // if previous status was COMMUNICATION_ERROR, we now reestablished the comms
+                        updateStatus(ThingStatus.ONLINE);
+                    }
+                } catch (ApiException e) {
+                    logger.warn("Exception from API - {}", getThing().getUID(), e);
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                            "@text/offline.comm-error-general");
+                }
+            }, config.refreshInterval, config.refreshInterval, TimeUnit.SECONDS);
+            logger.debug("Device polling job every {} seconds", config.refreshInterval);
+        }
+
         updateStatus(ONLINE);
+    }
+
+    @Override
+    public void dispose() {
+        ScheduledFuture<?> job = measurementPollingJob;
+        if (job != null && !job.isCancelled()) {
+            job.cancel(true);
+            measurementPollingJob = null;
+            logger.debug("Stopped MyEnergi measurement job");
+        }
     }
 
     @Override
@@ -80,18 +129,10 @@ public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler {
         super.updateProperties(properties);
     }
 
-    private Integer refreshCache() {
-        logger.debug("cache has timed out, we refresh the values in the thing");
-        updateThing();
-        // we don't care about the cache content, we just return a zero
-        return 0;
-    }
-
     protected void updatePowerState(final String channelId, @Nullable Integer value, Unit<Power> unit) {
         QuantityType<Power> quantity;
         if (value != null) {
             quantity = new QuantityType<>(value, unit);
-
         } else {
             quantity = new QuantityType<>(0, unit);
         }
@@ -151,4 +192,16 @@ public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler {
      * Updates all channels of a thing.
      */
     protected abstract void updateThing();
+
+    /**
+     * Refreshes the cache data via the Api.
+     */
+    protected abstract void refreshMeasurements() throws ApiException;
+
+    private Integer refreshCache() {
+        logger.debug("cache has timed out, we refresh the values in the thing");
+        updateThing();
+        // we don't care about the cache content, we just return a zero
+        return 0;
+    }
 }
