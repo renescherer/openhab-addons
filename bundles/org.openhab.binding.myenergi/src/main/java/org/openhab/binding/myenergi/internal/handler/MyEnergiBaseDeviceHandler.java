@@ -31,6 +31,8 @@ import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
 import org.openhab.binding.myenergi.internal.MyEnergiDeviceConfiguration;
 import org.openhab.binding.myenergi.internal.exception.ApiException;
 import org.openhab.core.cache.ExpiringCache;
+import org.openhab.core.config.core.status.ConfigStatusCallback;
+import org.openhab.core.config.core.status.ConfigStatusSource;
 import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.QuantityType;
@@ -52,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * @author Rene Scherer - Initial Contribution
  */
 @NonNullByDefault
-public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler {
+public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler implements ConfigStatusCallback {
 
     private static final int UPDATE_THING_CACHE_TIMEOUT = 3000; // 3 secs
 
@@ -121,6 +123,11 @@ public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler {
         if (command instanceof RefreshType) {
             updateThingCache.getValue();
         }
+    }
+
+    @Override
+    public void configUpdated(@Nullable ConfigStatusSource configStatusSource) {
+        logger.debug("Configuration has been updated for {}", serialNumber);
     }
 
     @Override
