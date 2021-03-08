@@ -32,7 +32,8 @@ public class ZappiSummary extends BaseSummary {
     // Load","ectt2":"Grid","ectt3":"None","frq":50.12,"grd":841,"pha":1,"sno":17028110,"sta":1,"vol":235.0,"pri":1,"cmt":254,"zmo":1,"tbk":5,"che":0.00,"pst":"A","mgl":50,"sbh":17,"sbk":5,"ectt4":"None","ectt5":"None","ectt6":"None","fwv":"3560S3.054","dst":1,"lck":16}
 
     @SerializedName("vol")
-    public Float supplyVoltage;
+    public Float supplyVoltageInTenthVolt;
+
     @SerializedName("frq")
     public Float supplyFrequency;
     @SerializedName("pha")
@@ -114,13 +115,13 @@ public class ZappiSummary extends BaseSummary {
     @Override
     public String toString() {
         return "ZappiSummary [serialNumber=" + serialNumber + ", dat=" + dat + ", tim=" + tim + ", dst=" + dst
-                + ", supplyVoltage=" + supplyVoltage + ", supplyFrequency=" + supplyFrequency + ", numberOfPhases="
-                + numberOfPhases + ", lockingMode=" + lockingMode + ", chargingMode=" + chargingMode + ", status="
-                + status + ", plugStatus=" + plugStatus + ", commandTries=" + commandTries + ", diverterPriority="
-                + diverterPriority + ", minimumGreenLevel=" + minimumGreenLevel + ", gridPower=" + gridPower
-                + ", generatedPower=" + generatedPower + ",  divertedPower=" + divertedPower + ", chargeAdded="
-                + chargeAdded + ", smartBoostHour=" + smartBoostHour + ", smartBoostMinute=" + smartBoostMinute
-                + ", smartBoostCharge=" + smartBoostCharge + ", timedBoostHour=" + timedBoostHour
+                + ", supplyVoltage=" + supplyVoltageInTenthVolt + ", supplyFrequency=" + supplyFrequency
+                + ", numberOfPhases=" + numberOfPhases + ", lockingMode=" + lockingMode + ", chargingMode="
+                + chargingMode + ", status=" + status + ", plugStatus=" + plugStatus + ", commandTries=" + commandTries
+                + ", diverterPriority=" + diverterPriority + ", minimumGreenLevel=" + minimumGreenLevel + ", gridPower="
+                + gridPower + ", generatedPower=" + generatedPower + ",  divertedPower=" + divertedPower
+                + ", chargeAdded=" + chargeAdded + ", smartBoostHour=" + smartBoostHour + ", smartBoostMinute="
+                + smartBoostMinute + ", smartBoostCharge=" + smartBoostCharge + ", timedBoostHour=" + timedBoostHour
                 + ", timedBoostMinute=" + timedBoostMinute + ", timedBoostCharge=" + timedBoostCharge + ", clampName1="
                 + clampName1 + ", clampName2=" + clampName2 + ", clampName3=" + clampName3 + ", clampName4="
                 + clampName4 + ", clampName5=" + clampName5 + ", clampName6=" + clampName6 + ", clampPower1="
@@ -133,8 +134,8 @@ public class ZappiSummary extends BaseSummary {
         logger.info("ZappiSummary:");
         logger.info("serialNumber={}", serialNumber);
         logger.info("date/time={} {}, dst={}", dat, tim, dst);
-        logger.info("supplyVoltage={}, supplyFrequency={}, numberOfPhases={}", supplyVoltage, supplyFrequency,
-                numberOfPhases);
+        logger.info("supplyVoltage={}, supplyFrequency={}, numberOfPhases={}", supplyVoltageInTenthVolt,
+                supplyFrequency, numberOfPhases);
         logger.info("lockingMode={}", lockingMode);
         logger.info("chargingMode={}", chargingMode);
         logger.info("status={}", status);
