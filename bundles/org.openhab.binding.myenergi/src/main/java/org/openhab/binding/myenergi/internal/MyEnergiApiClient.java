@@ -25,9 +25,11 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Authentication;
+import org.eclipse.jetty.client.api.AuthenticationStore;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.DigestAuthentication;
+import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.openhab.binding.myenergi.internal.dto.CommandStatus;
@@ -43,6 +45,7 @@ import org.openhab.binding.myenergi.internal.exception.AuthenticationException;
 import org.openhab.binding.myenergi.internal.exception.RecordNotFoundException;
 import org.openhab.binding.myenergi.internal.util.ZappiBoostMode;
 import org.openhab.binding.myenergi.internal.util.ZappiChargingMode;
+import org.openhab.core.io.net.http.HttpClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +68,7 @@ public class MyEnergiApiClient {
 
     private MyEnergiData data = new MyEnergiData();
 
+    private @Nullable HttpClientFactory httpClientFactory;
     private @Nullable HttpClient httpClient;
 
     // API
@@ -72,12 +76,12 @@ public class MyEnergiApiClient {
     private @Nullable URL baseURL;
 
     /**
-     * Sets the httpClient object to be used for API calls.
+     * Sets the httpClientFactory object to be used to get httpClients.
      *
-     * @param httpClient the client to be used.
+     * @param httpClientFactory the client to be used.
      */
-    public void setHttpClient(@Nullable HttpClient httpClient) {
-        this.httpClient = httpClient;
+    public void setHttpClientFactory(@Nullable HttpClientFactory httpClientFactory) {
+        this.httpClientFactory = httpClientFactory;
     }
 
     /**
@@ -87,11 +91,20 @@ public class MyEnergiApiClient {
      * @param password the password to be used.
      * @throws MyEnergiApiException
      */
-    public void setCredentials(final String username, final String password) throws ApiException {
-        HttpClient client = httpClient;
-        if (client != null) {
-            client.getAuthenticationStore().clearAuthentications();
-            client.getAuthenticationStore().clearAuthenticationResults();
+    public void initialize(final String username, final String password) throws ApiException {
+        HttpClientFactory factory = httpClientFactory;
+        if (factory == null) {
+            throw new ApiException("No HttpClientFactory provided");
+        } else {
+            HttpClient client = this.httpClient;
+            // close down existing client
+            stop();
+
+            // create a new httpClient, so that we can add our own digest authentication
+            client = factory.createHttpClient(MyEnergiApiClient.class.getSimpleName());
+            AuthenticationStore auth = client.getAuthenticationStore();
+            auth.clearAuthentications();
+            auth.clearAuthenticationResults();
             if (host.equals("")) {
                 host = "s" + username.charAt(username.length() - 1) + ".myenergi.net";
             }
@@ -106,11 +119,24 @@ public class MyEnergiApiClient {
                 if (!client.isStarted()) {
                     client.start();
                 }
+                httpClient = client;
             } catch (MalformedURLException | URISyntaxException e) {
                 throw new ApiException("Invalid URL for API call", e);
             } catch (Exception e) {
                 throw new ApiException("Could not start httpClient", e);
             }
+        }
+    }
+
+    public void stop() {
+        HttpClient client = httpClient;
+        if (client != null) {
+            try {
+                client.stop();
+            } catch (Exception e) {
+                logger.debug("Existing httpClient could not be stopped", e);
+            }
+            httpClient = null;
         }
     }
 
@@ -272,38 +298,50 @@ public class MyEnergiApiClient {
     private String executeApiCallHttpClient(URL url) throws ApiException {
         HttpClient client = httpClient;
         if (client != null) {
-            Request request = client.newRequest(url.toString()).method(HttpMethod.GET);
             try {
-                request.header(HttpHeader.ACCEPT, "application/json, text/plain, */*");
-                request.header(HttpHeader.ACCEPT_ENCODING, "gzip, deflate");
-                request.header(HttpHeader.CONNECTION, "keep-alive");
-                request.header(HttpHeader.CONTENT_TYPE, "application/json; utf-8");
-                request.header(HttpHeader.USER_AGENT, API_USER_AGENT);
+                int attempt = 0;
+                int lastResponseStatus = 0;
+                String lastResponseReason = "";
+                while (attempt < 2) {
+                    attempt++;
+                    Request request = client.newRequest(url.toString()).method(HttpMethod.GET);
+                    request.header(HttpHeader.ACCEPT, "application/json, text/plain, */*");
+                    request.header(HttpHeader.ACCEPT_ENCODING, "gzip, deflate");
+                    request.header(HttpHeader.CONNECTION, "keep-alive");
+                    request.header(HttpHeader.CONTENT_TYPE, "application/json; utf-8");
+                    request.header(HttpHeader.USER_AGENT, API_USER_AGENT);
 
-                logger.debug("sending API request: {}", url.toString());
+                    logger.debug("sending API request attempt# {}: {}", attempt, url.toString());
 
-                ContentResponse response = request.send();
-                logger.debug("HTTP Response Code: {}", response.getStatus());
-                logger.debug("HTTP Response Msg: {}", response.getReason());
-                if ((response.getStatus() == HttpURLConnection.HTTP_OK)
-                        || (response.getStatus() == HttpURLConnection.HTTP_CREATED)) {
-                    String apiResponse = response.getContentAsString();
-                    logger.debug("Api Response: {}", apiResponse);
-                    return apiResponse;
-                } else {
-                    if (response.getStatus() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                        throw new AuthenticationException(
-                                "Http error: " + response.getStatus() + " - " + response.getReason());
+                    ContentResponse response = request.send();
+                    lastResponseStatus = response.getStatus();
+                    lastResponseReason = response.getReason();
+                    logger.debug("HTTP response code: {}, reason: {}", lastResponseStatus, lastResponseReason);
+                    if (logger.isTraceEnabled()) {
+                        for (HttpField field : response.getHeaders()) {
+                            logger.trace("HTTP header: {}", field.toString());
+                        }
+                    }
+                    if ((lastResponseStatus == HttpURLConnection.HTTP_OK)
+                            || (lastResponseStatus == HttpURLConnection.HTTP_CREATED)) {
+                        String apiResponse = response.getContentAsString();
+                        logger.debug("Api response: {}", apiResponse);
+                        return apiResponse;
                     } else {
-                        throw new ApiException("Http error: " + response.getStatus() + " - " + response.getReason());
+                        if (lastResponseStatus == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                            throw new AuthenticationException(
+                                    "Http error: " + response.getStatus() + " - " + response.getReason());
+                        } else {
+                            logger.debug("Retrying Api request after code: {}, reason: {}", lastResponseStatus,
+                                    lastResponseReason);
+                        }
                     }
                 }
+                throw new ApiException(
+                        "Http error after several attemps: " + lastResponseStatus + " - " + lastResponseReason);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 throw new ApiException("Exception caught during API execution" + e);
             }
-            // catch (URISyntaxException e) {
-            // throw new MyEnergiApiException("Can't convert URL to URI" + e);
-            // }
         } else {
             throw new ApiException("httpClient is null");
         }

@@ -22,10 +22,13 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
 import org.openhab.binding.myenergi.internal.MyEnergiBridgeConfiguration;
 import org.openhab.binding.myenergi.internal.MyEnergiDiscoveryService;
+import org.openhab.binding.myenergi.internal.dto.EddiSummary;
 import org.openhab.binding.myenergi.internal.dto.HarviSummary;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
 import org.openhab.binding.myenergi.internal.exception.ApiException;
 import org.openhab.binding.myenergi.internal.exception.AuthenticationException;
+import org.openhab.core.config.core.status.ConfigStatusCallback;
+import org.openhab.core.config.core.status.ConfigStatusSource;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.ThingStatus;
@@ -44,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * @author Rene Scherer - Initial contribution
  */
 @NonNullByDefault
-public class MyEnergiBridgeHandler extends BaseBridgeHandler {
+public class MyEnergiBridgeHandler extends BaseBridgeHandler implements ConfigStatusCallback {
 
     private final Logger logger = LoggerFactory.getLogger(MyEnergiBridgeHandler.class);
 
@@ -79,7 +82,7 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
         updateStatus(ThingStatus.UNKNOWN);
         try {
             logger.debug("Login to MyEnergi API with username: {}", config.username);
-            apiClient.setCredentials(config.username, config.password);
+            apiClient.initialize(config.username, config.password);
             apiClient.updateTopologyCache();
             logger.debug("Cache update successful, setting bridge status to ONLINE");
             updateStatus(ThingStatus.ONLINE);
@@ -129,6 +132,16 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler {
             devicePollingJob = null;
             logger.debug("Stopped MyEnergi device topology job");
         }
+        apiClient.stop();
+    }
+
+    @Override
+    public void configUpdated(@Nullable ConfigStatusSource configStatusSource) {
+        logger.debug("Configuration has been updated for bridge");
+    }
+
+    public Iterable<EddiSummary> listEddis() {
+        return apiClient.getData().getEddis();
     }
 
     public Iterable<ZappiSummary> listZappis() {

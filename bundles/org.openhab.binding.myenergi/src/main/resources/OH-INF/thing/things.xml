@@ -69,13 +69,13 @@
 			<channel id="lastUpdatedTime" typeId="lastUpdatedTimeType"/>
 			<channel id="supplyVoltage" typeId="voltageType"/>
 			<channel id="supplyFrequency" typeId="frequencyType"/>
-			<channel id="numberOfPhases" typeId="countType"/>
+			<channel id="numberOfPhases" typeId="numberOfPhasesType"/>
 			<channel id="lockingMode" typeId="lockingModeType"/>
 			<channel id="chargingMode" typeId="chargingModeType"/>
 			<channel id="status" typeId="statusType"/>
 			<channel id="plugStatus" typeId="plugStatusType"/>
 			<channel id="commandTries" typeId="commandTriesType"/>
-			<channel id="diverterPriority" typeId="priorityType"/>
+			<channel id="diverterPriority" typeId="diverterPriorityType"/>
 			<channel id="minimumGreenLevel" typeId="minimumGreenLevelType"/>
 			<channel id="gridPower" typeId="gridPowerType"/>
 			<channel id="generatedPower" typeId="generatedPowerType"/>
@@ -169,10 +169,10 @@
 		<state readOnly="true" pattern="%d"/>
 	</channel-type>
 
-	<channel-type id="countType">
+	<channel-type id="numberOfPhasesType">
 		<item-type>Number</item-type>
-		<label>Count</label>
-		<description>The number of items</description>
+		<label>Number of Phases</label>
+		<description>The number of phases in the installation</description>
 		<state readOnly="true" pattern="%d"/>
 	</channel-type>
 
@@ -206,47 +206,48 @@
 		<state readOnly="true" pattern="%d"/>
 	</channel-type>
 
-	<channel-type id="chargingModeType" advanced="true">
+	<channel-type id="chargingModeType">
 		<item-type>String</item-type>
 		<label>Charging Mode</label>
 		<description>The current charging mode of the device</description>
 		<state readOnly="true">
 			<options>
-				<option value="0">0</option> <!-- Boost -->
-				<option value="1">1</option> <!-- Fast -->
-				<option value="2">2</option> <!-- Eco -->
-				<option value="3">3</option> <!-- Eco+ -->
+				<option value="0">Boost</option>
+				<option value="1">Fast</option>
+				<option value="2">Eco</option>
+				<option value="3">Eco+</option>
 			</options>
 		</state>
 	</channel-type>
 
-	<channel-type id="statusType" advanced="true">
+	<channel-type id="statusType">
 		<item-type>String</item-type>
 		<label>Status</label>
 		<description>The current status of the device</description>
 		<state readOnly="true">
 			<options>
-				<option value="0">0</option> <!-- Starting -->
-				<option value="1">1</option> <!-- Waiting for Export -->
-				<option value="2">2</option> <!-- Demand Side Response -->
-				<option value="3">3</option> <!-- Diverting -->
-				<option value="4">4</option> <!-- Boosting -->
-				<option value="5">5</option> <!-- Charge Complete -->
+				<option value="0">Starting</option>
+				<option value="1">Waiting for Export</option>
+				<option value="2">Demand Side Response</option>
+				<option value="3">Diverting</option>
+				<option value="4">Boosting</option>
+				<option value="5">Charge Complete</option>
 			</options>
 		</state>
 	</channel-type>
 
-	<channel-type id="plugStatusType" advanced="true">
+	<channel-type id="plugStatusType">
 		<item-type>String</item-type>
-		<label>Charging Status</label>
-		<description>The current charging status of the device</description>
+		<label>Plug Status</label>
+		<description>The current plug status of the device</description>
 		<state readOnly="true">
 			<options>
-				<option value="A">A</option> <!-- Disconnected -->
-				<option value="B1">B1</option> <!-- Awaiting Surplus -->
-				<option value="B2">B2</option> <!-- Charge Complete -->
-				<option value="C1">C1</option> <!-- Transitory - unknown -->
-				<option value="C2">C2</option> <!-- Charge Complete -->
+				<option value="A">Disconnected</option>
+				<option value="B1">Awaiting Surplus</option>
+				<option value="B2">Charge Complete</option>
+				<option value="C1">Transitory - unknown</option>
+				<option value="C2">Charging Max Power</option>
+				<option value="F">Fault/Restart</option>
 			</options>
 		</state>
 	</channel-type>
@@ -258,9 +259,9 @@
 		<state readOnly="true" pattern="%d"/>
 	</channel-type>
 
-	<channel-type id="priorityType">
+	<channel-type id="diverterPriorityType">
 		<item-type>Number</item-type>
-		<label>Priority</label>
+		<label>Diverter Priority</label>
 		<description>The diverter priority</description>
 		<state readOnly="true" pattern="%d"/>
 	</channel-type>

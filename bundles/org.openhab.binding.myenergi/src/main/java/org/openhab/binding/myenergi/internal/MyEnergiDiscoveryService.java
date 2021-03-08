@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.myenergi.internal.dto.EddiSummary;
 import org.openhab.binding.myenergi.internal.dto.HarviSummary;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
 import org.openhab.binding.myenergi.internal.handler.MyEnergiBridgeHandler;
@@ -122,8 +123,18 @@ public class MyEnergiDiscoveryService extends AbstractDiscoveryService
         // If the bridge is not online no other thing devices can be found, so no reason to scan at this moment.
         removeOlderResults(getTimestampOfLastScan());
         logger.debug("Starting device discovery for bridge {}", bridgeUID);
+        bridgeHandler.listEddis().forEach(this::eddiDiscovered);
         bridgeHandler.listZappis().forEach(this::zappiDiscovered);
         bridgeHandler.listHarvis().forEach(this::harviDiscovered);
+    }
+
+    private void eddiDiscovered(EddiSummary device) {
+        logger.debug("Discovered Eddi: {}", device.serialNumber);
+        ThingUID thingsUID = new ThingUID(THING_TYPE_EDDI, bridgeUID, device.serialNumber.toString());
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.putAll(device.getThingProperties());
+        thingDiscovered(DiscoveryResultBuilder.create(thingsUID).withLabel("MyEnergi Eddi").withProperties(properties)
+                .withBridge(bridgeUID).build());
     }
 
     private void zappiDiscovered(ZappiSummary device) {
@@ -131,8 +142,8 @@ public class MyEnergiDiscoveryService extends AbstractDiscoveryService
         ThingUID thingsUID = new ThingUID(THING_TYPE_ZAPPI, bridgeUID, device.serialNumber.toString());
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.putAll(device.getThingProperties());
-        thingDiscovered(DiscoveryResultBuilder.create(thingsUID).withLabel("MyEnergi Zappi" + device.serialNumber)
-                .withProperties(properties).withBridge(bridgeUID).build());
+        thingDiscovered(DiscoveryResultBuilder.create(thingsUID).withLabel("MyEnergi Zappi").withProperties(properties)
+                .withBridge(bridgeUID).build());
     }
 
     private void harviDiscovered(HarviSummary device) {
@@ -140,7 +151,7 @@ public class MyEnergiDiscoveryService extends AbstractDiscoveryService
         ThingUID thingsUID = new ThingUID(THING_TYPE_HARVI, bridgeUID, device.serialNumber.toString());
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.putAll(device.getThingProperties());
-        thingDiscovered(DiscoveryResultBuilder.create(thingsUID).withLabel("MyEnergi Harvi" + device.serialNumber)
-                .withProperties(properties).withBridge(bridgeUID).build());
+        thingDiscovered(DiscoveryResultBuilder.create(thingsUID).withLabel("MyEnergi Harvi").withProperties(properties)
+                .withBridge(bridgeUID).build());
     }
 }

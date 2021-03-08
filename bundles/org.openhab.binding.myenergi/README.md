@@ -1,56 +1,116 @@
 # myenergi Binding
 
-_Give some details about what this binding is meant for - a protocol, system, specific device._
+This binding allows openHAB to communicate with the public API from myenergi Ltd. (https://myenergi.info), a manufacturer of electric vehicle chargers (Zappi) and solar energy diverters (Eddi):
 
-_If possible, provide some resources like pictures, a YouTube video, etc. to give an impression of what can be done with this binding. You can place such resources into a `doc` folder next to this README.md._
+- Retrieval of current energy readings (grid, solar, EV charger)
+- Control charging status and boost modes for Zappi
+
+So far, this binding has only been tested with a Harvi and a Zappi. I would welcome testers who have an Eddi installed.
 
 ## Supported Things
 
-_Please describe the different supported things / devices within this section._
-_Which different types are supported, which models were tested etc.?_
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
+This binding supports the following thing types
+
+| Thing  | Thing Type | Discovery | Description                                    |
+|--------|------------|-----------|------------------------------------------------|
+| bridge | Bridge     | Manual    |  A single connection to the myenergi API |
+| eddi   | Thing      | Automatic |  A solar energy diverter                 |
+| zappi  | Thing      | Automatic |  An EV Charger (EVSE)                    |
+| harvi  | Thing      | Automatic |  A remote power clamp reader             |
+
 
 ## Discovery
 
-_Describe the available auto-discovery features here. Mention for what it works and what needs to be kept in mind when using it._
-
-## Binding Configuration
-
-_If your binding requires or supports general configuration settings, please create a folder ```cfg``` and place the configuration file ```<bindingId>.cfg``` inside it. In this section, you should link to this file and provide some information about the options. The file could e.g. look like:_
-
-```
-# Configuration for the Philips Hue Binding
-#
-# Default secret key for the pairing of the Philips Hue Bridge.
-# It has to be between 10-40 (alphanumeric) characters
-# This may be changed by the user for security reasons.
-secret=openHABSecret
-```
-
-_Note that it is planned to generate some part of this based on the information that is available within ```src/main/resources/OH-INF/binding``` of your binding._
-
-_If your binding does not offer any generic configurations, you can remove this section completely._
-
+Once the bridge is configured with myenergi username and password, the various devices will be discovered automatically and added to the Inbox.
+ 
 ## Thing Configuration
 
-_Describe what is needed to manually configure a thing, either through the (Paper) UI or via a thing-file. This should be mainly about its mandatory and optional configuration parameters. A short example entry for a thing file can help!_
+#### Manual configuration
 
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
+For the identifier of the devices, the corresponding serial number is used.
+
+```
+Bridge myenergi:bridge:api "MyEnergi API Bridge" [ username="<my username>", password="<my password>", refreshInterval=24 ] {
+  Thing zappi 21287642 "MyEnergi Zappi" [ refreshInterval=30 ]
+  Thing harvi 87263212 "MyEnergi Harvi" [ refreshInterval=30 ]
+}
+```
 
 ## Channels
 
-_Here you should provide information about available channel types, what their meaning is and how they can be used._
+The following channels are defined. Except for the bridge refresh channel, all are read-only.
 
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
+####  Bridge
 
-| channel  | type   | description                  |
-|----------|--------|------------------------------|
-| control  | Switch | This is the control channel  |
+none
 
-## Full Example
+####  Zappi
 
-_Provide a full usage example based on textual configuration files (*.things, *.items, *.sitemap)._
+| channel         | type          | description                                                     |
+|-----------------|---------------|-----------------------------------------------------------------|
+| lastUpdatedTime | DateTime      | The time the readings have last been updated.                   |
+| supplyVoltage      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| supplyFrequency     | Number:Energy | The amount of energy measured by the clamp.                     |
+| numberOfPhases     | Number        | The identifier of the phase (for 3-phase installations).        |
+| lockingMode     | Number        | The identifier of the phase (for 3-phase installations).        |
+| chargingMode     | Number        | The identifier of the phase (for 3-phase installations).        |
+| status     | Number        | The identifier of the phase (for 3-phase installations).        |
+| plugStatus     | Number        | The identifier of the phase (for 3-phase installations).        |
+| commandTries     | Number        | The identifier of the phase (for 3-phase installations).        |
+| diverterPriority     | Number        | The identifier of the phase (for 3-phase installations).        |
+| minimumGreenLevel     | Number        | The identifier of the phase (for 3-phase installations).        |
+| gridPower     | Number        | The identifier of the phase (for 3-phase installations).        |
+| generatedPower     | Number        | The identifier of the phase (for 3-phase installations).        |
+| divertedPower     | Number        | The identifier of the phase (for 3-phase installations).        |
+| chargeAdded     | Number        | The identifier of the phase (for 3-phase installations).        |
+| smartBoostTime     | Number        | The identifier of the phase (for 3-phase installations).        |
+| smartBoostCharge     | Number        | The identifier of the phase (for 3-phase installations).        |
+| timedBoostTime     | Number        | The identifier of the phase (for 3-phase installations).        |
+| timedBoostCharge     | Number        | The identifier of the phase (for 3-phase installations).        |
+| clampName1      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower1     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampName2      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower2     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampName3      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower3     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampName4      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower4     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampName5      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower5     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampName6      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower6     | Number:Energy | The amount of energy measured by the clamp.                     |
 
-## Any custom content here!
+####  Harvi
 
-_Feel free to add additional sections for whatever you think should also be mentioned about your binding!_
+| channel         | type          | description                                                     |
+|-----------------|---------------|-----------------------------------------------------------------|
+| lastUpdatedTime | DateTime      | The time the readings have last been updated.                   |
+| clampName1      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower1     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampPhase1     | Number        | The identifier of the phase (for 3-phase installations).        |
+
+
+## Actions
+
+tbd
+
+####  Electricity Meter Point
+
+tbd
+
+## Examples
+
+myenergi.things
+
+```
+Bridge myenergi:bridge:api "MyEnergi API Bridge" [ username="<my username>", password="<my password>", refreshInterval=24 ] {
+  Thing zappi 21287642 "MyEnergi Zappi" [ refreshInterval=30 ]
+  Thing harvi 87263212 "MyEnergi Harvi" [ refreshInterval=30 ]
+}
+```
+
+myenergi.items
+
+```
+tbd
+```

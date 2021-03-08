@@ -76,10 +76,10 @@ public class MyEnergiHandlerFactory extends BaseThingHandlerFactory {
 
     @Reference
     protected void setHttpClientFactory(HttpClientFactory httpClientFactory) {
-        apiClient.setHttpClient(httpClientFactory.getCommonHttpClient());
+        apiClient.setHttpClientFactory(httpClientFactory);
     }
 
     protected void unsetHttpClientFactory(HttpClientFactory httpClientFactory) {
-        apiClient.setHttpClient(null);
+        apiClient.setHttpClientFactory(null);
     }
 }
