@@ -15,6 +15,9 @@ package org.openhab.binding.myenergi.internal.handler;
 import static org.openhab.binding.myenergi.internal.MyEnergiBindingConstants.*;
 import static org.openhab.core.library.unit.Units.*;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
@@ -22,6 +25,7 @@ import org.openhab.binding.myenergi.internal.exception.ApiException;
 import org.openhab.binding.myenergi.internal.exception.RecordNotFoundException;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.binding.ThingHandlerService;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 import org.slf4j.Logger;
@@ -39,6 +43,11 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
 
     public MyEnergiZappiHandler(Thing thing, MyEnergiApiClient apiClient) {
         super(thing, apiClient);
+    }
+
+    @Override
+    public Collection<Class<? extends ThingHandlerService>> getServices() {
+        return Collections.singleton(MyEnergiZappiActions.class);
     }
 
     @Override
@@ -64,8 +73,8 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
 
             updateIntegerState(ZAPPI_CHANNEL_NUMBER_OF_PHASES, device.numberOfPhases);
             updateIntegerState(ZAPPI_CHANNEL_LOCKING_MODE, device.lockingMode);
-            updateIntegerState(ZAPPI_CHANNEL_CHARGING_MODE, device.chargingMode);
-            updateIntegerState(ZAPPI_CHANNEL_STATUS, device.status);
+            updateStringState(ZAPPI_CHANNEL_CHARGING_MODE, device.chargingMode.toString());
+            updateStringState(ZAPPI_CHANNEL_STATUS, device.status.toString());
             updateStringState(ZAPPI_CHANNEL_PLUG_STATUS, device.plugStatus);
 
             updateIntegerState(ZAPPI_CHANNEL_COMMAND_TRIES, device.commandTries);
@@ -75,6 +84,9 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
             updatePowerState(ZAPPI_CHANNEL_GRID_POWER, device.gridPower, WATT);
             updatePowerState(ZAPPI_CHANNEL_GENERATED_POWER, device.generatedPower, WATT);
             updatePowerState(ZAPPI_CHANNEL_DIVERTED_POWER, device.divertedPower, WATT);
+            int consumedPower = ((device.gridPower != null) ? device.gridPower : 0)
+                    + ((device.generatedPower != null) ? device.generatedPower : 0);
+            updatePowerState(ZAPPI_CHANNEL_CONSUMED_POWER, consumedPower, WATT);
 
             updateEnergyState(ZAPPI_CHANNEL_CHARGE_ADDED, device.chargeAdded, KILOWATT_HOUR);
 

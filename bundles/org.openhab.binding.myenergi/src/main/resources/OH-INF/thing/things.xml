@@ -80,6 +80,7 @@
 			<channel id="gridPower" typeId="gridPowerType"/>
 			<channel id="generatedPower" typeId="generatedPowerType"/>
 			<channel id="divertedPower" typeId="divertedPowerType"/>
+			<channel id="consumedPower" typeId="consumedPowerType"/>
 			<channel id="chargeAdded" typeId="chargeType"/>
 			<channel id="smartBoostTime" typeId="boostEndTimeType"/>
 			<channel id="smartBoostCharge" typeId="chargeType"/>
@@ -149,6 +150,14 @@
 		<item-type>Number:Power</item-type>
 		<label>Diverted Power</label>
 		<description>The diverted power</description>
+		<category>Energy</category>
+		<state readOnly="true" pattern="%.1f %unit%"/>
+	</channel-type>
+
+	<channel-type id="consumedPowerType">
+		<item-type>Number:Power</item-type>
+		<label>Consumed Power</label>
+		<description>The total consumed power (grid + generated)</description>
 		<category>Energy</category>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
