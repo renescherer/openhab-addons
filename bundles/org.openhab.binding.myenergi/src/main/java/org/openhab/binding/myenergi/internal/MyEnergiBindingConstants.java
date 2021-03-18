@@ -22,6 +22,7 @@ import org.openhab.binding.myenergi.internal.dto.ZappiHourlyHistory;
 import org.openhab.binding.myenergi.internal.util.ZappiHourlyHistoryTypeAdapter;
 import org.openhab.core.thing.ThingTypeUID;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -37,6 +38,7 @@ public class MyEnergiBindingConstants {
     private static final String BINDING_ID = "myenergi";
 
     public static final Gson GSON = new GsonBuilder()
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .registerTypeAdapter(ZappiHourlyHistory.class, new ZappiHourlyHistoryTypeAdapter()).create();
 
     // List all Thing Type UIDs, related to the binding
@@ -64,6 +66,7 @@ public class MyEnergiBindingConstants {
     public static final String ZAPPI_CHANNEL_GRID_POWER = "gridPower";
     public static final String ZAPPI_CHANNEL_GENERATED_POWER = "generatedPower";
     public static final String ZAPPI_CHANNEL_DIVERTED_POWER = "divertedPower";
+    public static final String ZAPPI_CHANNEL_CONSUMED_POWER = "consumedPower";
     public static final String ZAPPI_CHANNEL_CHARGE_ADDED = "chargeAdded";
     public static final String ZAPPI_CHANNEL_SMART_BOOST_TIME = "smartBoostTime";
     public static final String ZAPPI_CHANNEL_SMART_BOOST_CHARGE = "smartBoostCharge";

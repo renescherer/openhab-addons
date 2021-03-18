@@ -37,6 +37,8 @@ import org.openhab.binding.myenergi.internal.dto.DeviceSummary;
 import org.openhab.binding.myenergi.internal.dto.DeviceSummaryList;
 import org.openhab.binding.myenergi.internal.dto.HarviSummary;
 import org.openhab.binding.myenergi.internal.dto.MyEnergiData;
+import org.openhab.binding.myenergi.internal.dto.ZappiBoostTimeSlot;
+import org.openhab.binding.myenergi.internal.dto.ZappiBoostTimes;
 import org.openhab.binding.myenergi.internal.dto.ZappiHourlyHistory;
 import org.openhab.binding.myenergi.internal.dto.ZappiMinuteHistory;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
@@ -60,6 +62,8 @@ import com.google.gson.JsonSyntaxException;
 @NonNullByDefault
 public class MyEnergiApiClient {
 
+    private static final int SLEEP_BEFORE_REINIT_MS = 3000;
+
     private static final String API_USER_AGENT = "Mozilla/5.0 (Linux; Android 7.0; SM-G930F Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/64.0.3282.137 Mobile Safari/537.36";
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
@@ -74,6 +78,8 @@ public class MyEnergiApiClient {
     // API
     private String host = "";
     private @Nullable URL baseURL;
+    private String username = "";
+    private String password = "";
 
     /**
      * Sets the httpClientFactory object to be used to get httpClients.
@@ -92,6 +98,8 @@ public class MyEnergiApiClient {
      * @throws MyEnergiApiException
      */
     public void initialize(final String username, final String password) throws ApiException {
+        this.username = username;
+        this.password = password;
         HttpClientFactory factory = httpClientFactory;
         if (factory == null) {
             throw new ApiException("No HttpClientFactory provided");
@@ -254,6 +262,45 @@ public class MyEnergiApiClient {
         }
     }
 
+    public ZappiBoostTimes getZappiBoostTimes(long zappiSerialNumber) throws ApiException {
+        String response = executeApiCall("/cgi-boost-time-Z" + zappiSerialNumber);
+        try {
+            ZappiBoostTimes result = MyEnergiBindingConstants.GSON.fromJson(response, ZappiBoostTimes.class);
+            if (result != null) {
+                return result;
+            } else {
+                throw new ApiException("Unexpected JSON response: " + response);
+            }
+        } catch (JsonSyntaxException e) {
+            throw new ApiException("Unable to deserialize JSON response: " + response, e);
+        }
+    }
+
+    // cgi-boost-time-Z???-{slot}-{bsh}-{bdh}-{bdd}
+    // Slot is one of 11,12,13,14
+    // Start time is in 24 hour clock, 15 minute intervals.
+    // Duration is hoursminutes and is less than 10 hours.
+
+    public ZappiBoostTimes setZappiBoostTimes(long zappiSerialNumber, ZappiBoostTimeSlot slot) throws ApiException {
+        if (slot.durationHour >= 8) {
+            slot.durationHour = 8;
+            slot.durationMinute = 0;
+        }
+        String uri = String.format("/cgi-boost-time-Z%s-%d-%02d%02d-%1d%02d-%s", zappiSerialNumber, slot.slotId,
+                slot.startHour, slot.startMinute, slot.durationHour, slot.durationMinute, slot.daysOfTheWeekMap);
+        String response = executeApiCall(uri);
+        try {
+            ZappiBoostTimes result = MyEnergiBindingConstants.GSON.fromJson(response, ZappiBoostTimes.class);
+            if (result != null) {
+                return result;
+            } else {
+                throw new ApiException("Unexpected JSON response: " + response);
+            }
+        } catch (JsonSyntaxException e) {
+            throw new ApiException("Unable to deserialize JSON response: " + response, e);
+        }
+    }
+
     public CommandStatus setZappiBoostMode(String serialNumber, ZappiBoostMode mode, int energyKiloWattHours,
             @Nullable String departureTime) throws ApiException {
         StringBuilder uriStr = new StringBuilder("/cgi-zappi-mode-Z");
@@ -299,47 +346,60 @@ public class MyEnergiApiClient {
         HttpClient client = httpClient;
         if (client != null) {
             try {
-                int attempt = 0;
                 int lastResponseStatus = 0;
                 String lastResponseReason = "";
-                while (attempt < 2) {
-                    attempt++;
-                    Request request = client.newRequest(url.toString()).method(HttpMethod.GET);
-                    request.header(HttpHeader.ACCEPT, "application/json, text/plain, */*");
-                    request.header(HttpHeader.ACCEPT_ENCODING, "gzip, deflate");
-                    request.header(HttpHeader.CONNECTION, "keep-alive");
-                    request.header(HttpHeader.CONTENT_TYPE, "application/json; utf-8");
-                    request.header(HttpHeader.USER_AGENT, API_USER_AGENT);
+                int outerLoop = 0;
+                while (outerLoop < 3) {
+                    outerLoop++;
+                    try {
+                        int innerLoop = 0;
+                        while ((innerLoop < 2) && !client.isStopped()) {
+                            innerLoop++;
+                            Request request = client.newRequest(url.toString()).method(HttpMethod.GET);
+                            request.header(HttpHeader.ACCEPT, "application/json, text/plain, */*");
+                            request.header(HttpHeader.ACCEPT_ENCODING, "gzip, deflate");
+                            request.header(HttpHeader.CONNECTION, "keep-alive");
+                            request.header(HttpHeader.CONTENT_TYPE, "application/json; utf-8");
+                            request.header(HttpHeader.USER_AGENT, API_USER_AGENT);
 
-                    logger.debug("sending API request attempt# {}: {}", attempt, url.toString());
+                            logger.info("sending API request attempt# {}: {}", innerLoop, url.toString());
 
-                    ContentResponse response = request.send();
-                    lastResponseStatus = response.getStatus();
-                    lastResponseReason = response.getReason();
-                    logger.debug("HTTP response code: {}, reason: {}", lastResponseStatus, lastResponseReason);
-                    if (logger.isTraceEnabled()) {
-                        for (HttpField field : response.getHeaders()) {
-                            logger.trace("HTTP header: {}", field.toString());
+                            ContentResponse response = request.send();
+                            lastResponseStatus = response.getStatus();
+                            lastResponseReason = response.getReason();
+                            logger.debug("HTTP response code: {}, reason: {}", lastResponseStatus, lastResponseReason);
+                            if (logger.isTraceEnabled()) {
+                                for (HttpField field : response.getHeaders()) {
+                                    logger.trace("HTTP header: {}", field.toString());
+                                }
+                            }
+                            if ((lastResponseStatus == HttpURLConnection.HTTP_OK)
+                                    || (lastResponseStatus == HttpURLConnection.HTTP_CREATED)) {
+                                String apiResponse = response.getContentAsString();
+                                logger.info("Api response: {}", apiResponse);
+                                return apiResponse;
+                            } else {
+                                if (lastResponseStatus == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                                    throw new AuthenticationException(
+                                            "Http error: " + response.getStatus() + " - " + response.getReason());
+                                } else {
+                                    logger.debug("Retrying Api request after code: {}, reason: {}", lastResponseStatus,
+                                            lastResponseReason);
+                                }
+                            }
                         }
+                        logger.info("Re-initializing Api connection after code: {}, reason: {}", lastResponseStatus,
+                                lastResponseReason);
+                    } catch (ExecutionException e) {
+                        logger.info("Re-initializing Api connection after exception caught", e);
                     }
-                    if ((lastResponseStatus == HttpURLConnection.HTTP_OK)
-                            || (lastResponseStatus == HttpURLConnection.HTTP_CREATED)) {
-                        String apiResponse = response.getContentAsString();
-                        logger.debug("Api response: {}", apiResponse);
-                        return apiResponse;
-                    } else {
-                        if (lastResponseStatus == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                            throw new AuthenticationException(
-                                    "Http error: " + response.getStatus() + " - " + response.getReason());
-                        } else {
-                            logger.debug("Retrying Api request after code: {}, reason: {}", lastResponseStatus,
-                                    lastResponseReason);
-                        }
-                    }
+                    // reset connection and try again
+                    Thread.sleep(SLEEP_BEFORE_REINIT_MS);
+                    initialize(username, password);
                 }
                 throw new ApiException(
                         "Http error after several attemps: " + lastResponseStatus + " - " + lastResponseReason);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            } catch (InterruptedException | TimeoutException e) {
                 throw new ApiException("Exception caught during API execution" + e);
             }
         } else {
