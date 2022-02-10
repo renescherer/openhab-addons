@@ -25,6 +25,7 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpContentResponse;
 import org.eclipse.jetty.client.HttpRequest;
 import org.eclipse.jetty.client.api.AuthenticationStore;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.jupiter.api.BeforeAll;
@@ -76,6 +77,7 @@ class MyEnergiApiClientTest {
     private static final int ZAPPI_SERIAL_NUMBER = 21287642;
 
     private static MyEnergiApiClient api = new MyEnergiApiClient();
+    private static HttpFields responseFields = mock(HttpFields.class);
 
     private static AuthenticationStore authenticationStore = mock(AuthenticationStore.class);
     private static HttpClientFactory httpClientFactory = mock(HttpClientFactoryMock.class);
@@ -90,12 +92,15 @@ class MyEnergiApiClientTest {
         when(httpClient.getAuthenticationStore()).thenReturn(authenticationStore);
         when(httpClient.newRequest(anyString())).thenReturn(request);
         when(httpClient.isStarted()).thenReturn(true);
+        // doNothing().when(httpClient).stop();
+
         when(request.method(HttpMethod.GET)).thenReturn(request);
 
         when(request.send()).thenReturn(response);
         when(response.getStatus()).thenReturn(RESPONSE_200_STATUS);
         when(response.getReason()).thenReturn(RESPONSE_200_REASON);
-
+        when(responseFields.get(MyEnergiGetHostFromDirector.MY_ENERGI_RESPONSE_FIELD)).thenReturn("SomeHost");
+        when(response.getHeaders()).thenReturn(responseFields);
         api.setHttpClientFactory(httpClientFactory);
         api.initialize(TEST_USERNAME, TEST_PASSWORD_VALID);
     }
