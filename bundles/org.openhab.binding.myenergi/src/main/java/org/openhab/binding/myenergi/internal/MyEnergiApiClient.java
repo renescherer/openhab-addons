@@ -93,12 +93,12 @@ public class MyEnergiApiClient {
     /**
      * Sets the credentials (username/password) to be used for API calls.
      *
-     * @param username the username to be used.
-     * @param password the password to be used.
+     * @param hubSerialNumber the serial number of the myenergi hub
+     * @param password the password for this hub in the myenergi mobile app.
      * @throws MyEnergiApiException
      */
-    public void initialize(final String username, final String password) throws ApiException {
-        this.username = username;
+    public void initialize(final String hubSerialNumber, final String password) throws ApiException {
+        this.username = hubSerialNumber;
         this.password = password;
         HttpClientFactory factory = httpClientFactory;
         if (factory == null) {
@@ -113,17 +113,17 @@ public class MyEnergiApiClient {
             AuthenticationStore auth = client.getAuthenticationStore();
             auth.clearAuthentications();
             auth.clearAuthenticationResults();
-            if (host.equals("")) {
-                host = "s" + username.charAt(username.length() - 1) + ".myenergi.net";
+            if ("".equals(host)) {
+                host = new MyEnergiGetHostFromDirector().getHostName(client, hubSerialNumber);
             }
             try {
                 URL baseURL = new URL("https", host, "/");
                 logger.debug("API base URL: {}", baseURL.toString());
 
                 client.getAuthenticationStore().addAuthentication(
-                        new DigestAuthentication(baseURL.toURI(), Authentication.ANY_REALM, username, password));
+                        new DigestAuthentication(baseURL.toURI(), Authentication.ANY_REALM, hubSerialNumber, password));
                 this.baseURL = baseURL;
-                logger.debug("Digest authentication added: {}", username);
+                logger.debug("Digest authentication added: {}", hubSerialNumber);
                 if (!client.isStarted()) {
                     client.start();
                 }
