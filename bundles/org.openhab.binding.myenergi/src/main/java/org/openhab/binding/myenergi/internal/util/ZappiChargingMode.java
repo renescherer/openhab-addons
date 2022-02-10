@@ -12,12 +12,15 @@
  */
 package org.openhab.binding.myenergi.internal.util;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The {@link ZappiChargingMode} enumeration is used to model the various Zappi charging modes.
  *
  * @author Rene Scherer - Initial contribution
  *
  */
+@NonNullByDefault
 public enum ZappiChargingMode {
     BOOST(0),
     FAST(1),
