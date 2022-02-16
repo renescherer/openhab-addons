@@ -56,46 +56,30 @@ public class MyEnergiGetHostFromDirector {
             // No password is needed at director.myenergie.net
             httpClient.getAuthenticationStore().addAuthentication(
                     new DigestAuthentication(directorURL.toURI(), Authentication.ANY_REALM, hubSerialNumber, ""));
-            int lastResponseStatus = 0;
-            String lastResponseReason = "";
-            int outerLoop = 0;
-            while (outerLoop < 3) {
-                outerLoop++;
-                try {
-                    int innerLoop = 0;
-                    while ((innerLoop < 2)) {
-                        innerLoop++;
-                        if (!httpClient.isStarted()) {
-                            httpClient.start();
-                        }
-
-                        Request request = httpClient.newRequest(directorURL.toString()).method(HttpMethod.GET);
-
-                        logger.info("sending API request attempt# {}: {}", innerLoop, directorURL.toString());
-
-                        ContentResponse response = request.send();
-                        String hostname = response.getHeaders().get(MY_ENERGI_RESPONSE_FIELD);
-                        if (null != hostname) {
-                            return hostname;
-                        }
-
-                        logger.debug("HTTP response code: {}, reason: {}", lastResponseStatus, lastResponseReason);
-                        if (logger.isTraceEnabled()) {
-                            for (HttpField field : response.getHeaders()) {
-                                logger.trace("HTTP header: {}", field.toString());
-                            }
-                        }
-                    }
-                    logger.info("Re-initializing Api missing host name in response header");
-                } catch (Exception e) {
-                    logger.info("Re-initializing Api connection after exception caught", e);
+            int innerLoop = 0;
+            while ((innerLoop < 2)) {
+                innerLoop++;
+                if (!httpClient.isStarted()) {
+                    httpClient.start();
                 }
-                // reset connection and try again
-                Thread.sleep(SLEEP_BEFORE_REINIT_MS);
+                Request request = httpClient.newRequest(directorURL.toString()).method(HttpMethod.GET);
+                logger.trace("sending get hostname request: {}", innerLoop);
+                ContentResponse response = request.send();
+                String hostname = response.getHeaders().get(MY_ENERGI_RESPONSE_FIELD);
+                if (null != hostname) {
+                    return hostname;
+                }
+
+                if (logger.isTraceEnabled()) {
+                    for (HttpField field : response.getHeaders()) {
+                        logger.trace("HTTP header: {}", field.toString());
+                    }
+                }
             }
-            throw new ApiException("Director returned no host name after several attempts");
         } catch (Exception e) {
             throw new ApiException("Exception caught during API execution", e);
         }
+        // This code will never be executed, because the ApiException will be thrown earlier
+        return "";
     }
 }

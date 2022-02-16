@@ -22,7 +22,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public class MyEnergiBridgeConfiguration {
 
-    public String username = "";
+    public String hubSerialNumber = "";
     public String password = "";
 
     public int refreshInterval = 24; // 24 hours

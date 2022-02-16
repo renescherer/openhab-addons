@@ -68,9 +68,9 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler implements ConfigSt
         logger.debug("Initializing MyEnergiBridgeHandler");
         MyEnergiBridgeConfiguration config = getConfigAs(MyEnergiBridgeConfiguration.class);
 
-        if (config.username.isEmpty() || config.password.isEmpty()) {
+        if (config.hubSerialNumber.isEmpty() || config.password.isEmpty()) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "@text/offline.conf-error-missing-username-or-password");
+                    "@text/offline.conf-error-missing-hubSerialNumber-or-password");
             return;
         }
         if (config.refreshInterval < 1) {
@@ -81,8 +81,8 @@ public class MyEnergiBridgeHandler extends BaseBridgeHandler implements ConfigSt
 
         updateStatus(ThingStatus.UNKNOWN);
         try {
-            logger.debug("Login to MyEnergi API with username: {}", config.username);
-            apiClient.initialize(config.username, config.password);
+            logger.debug("Login to MyEnergi API with hubSerialNumber: {}", config.hubSerialNumber);
+            apiClient.initialize(config.hubSerialNumber, config.password);
             apiClient.updateTopologyCache();
             logger.debug("Cache update successful, setting bridge status to ONLINE");
             updateStatus(ThingStatus.ONLINE);
