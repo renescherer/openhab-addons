@@ -4,6 +4,10 @@
 	xsi:schemaLocation="https://openhab.org/schemas/binding/v1.0.0 https://openhab.org/schemas/binding-1.0.0.xsd">
 
 	<name>myenergi Binding</name>
-	<description>This is the binding for myenergi.</description>
+	<description>The myenergi binding connects to the myenergi hub and interacts with the following myenergi products:
+		zappi wallbox,
+		harvi remote device for CT sensors,
+		eddi control device for huge power consumers like heat pumps
+		.</description>
 
 </binding:binding>

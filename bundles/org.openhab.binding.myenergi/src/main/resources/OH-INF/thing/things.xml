@@ -11,9 +11,9 @@
 		<description>The MyEnergi Cloud API Bridge</description>
 
 		<config-description>
-			<parameter name="username" type="text" required="true">
-				<label>Username (Hub Serial Number)</label>
-				<description>The username to access the MyEnergi API (Hub Serial Number)</description>
+			<parameter name="hubSerialNumber" type="text" required="true">
+				<label>Hub Serial Number.</label>
+				<description>The Hub Serial Number to access the MyEnergi API ()</description>
 			</parameter>
 			<parameter name="password" type="text" required="true">
 				<label>Password</label>
@@ -39,12 +39,12 @@
 
 		<channels>
 			<channel id="lastUpdatedTime" typeId="lastUpdatedTimeType"/>
-			<channel id="clampName1" typeId="nameType"/>
-			<channel id="clampName2" typeId="nameType"/>
-			<channel id="clampName3" typeId="nameType"/>
-			<channel id="clampPower1" typeId="clampPowerType"/>
-			<channel id="clampPower2" typeId="clampPowerType"/>
-			<channel id="clampPower3" typeId="clampPowerType"/>
+			<channel id="clampName1" typeId="CTType"/>
+			<channel id="clampName2" typeId="CTType"/>
+			<channel id="clampName3" typeId="CTType"/>
+			<channel id="clampPower1" typeId="clampPowerTypeL1"/>
+			<channel id="clampPower2" typeId="clampPowerTypeL2"/>
+			<channel id="clampPower3" typeId="clampPowerTypeL3"/>
 			<channel id="clampPhase1" typeId="phaseType"/>
 			<channel id="clampPhase2" typeId="phaseType"/>
 			<channel id="clampPhase3" typeId="phaseType"/>
@@ -86,16 +86,10 @@
 			<channel id="smartBoostCharge" typeId="chargeType"/>
 			<channel id="timedBoostTime" typeId="boostEndTimeType"/>
 			<channel id="timedBoostCharge" typeId="chargeType"/>
-			<channel id="clampName1" typeId="nameType"/>
-			<channel id="clampName2" typeId="nameType"/>
-			<channel id="clampName3" typeId="nameType"/>
-			<channel id="clampName4" typeId="nameType"/>
-			<channel id="clampName5" typeId="nameType"/>
-			<channel id="clampName6" typeId="nameType"/>
-			<channel id="clampPower1" typeId="clampPowerType"/>
-			<channel id="clampPower2" typeId="clampPowerType"/>
-			<channel id="clampPower3" typeId="clampPowerType"/>
-			<channel id="clampPower4" typeId="clampPowerType"/>
+			<channel id="clampName4" typeId="CTTypeL1"/>
+			<channel id="clampName5" typeId="CTTypeL2"/>
+			<channel id="clampName6" typeId="CTTypeL3"/>
+		    <channel id="clampPower4" typeId="clampPowerType"/>
 			<channel id="clampPower5" typeId="clampPowerType"/>
 			<channel id="clampPower6" typeId="clampPowerType"/>
 		</channels>
@@ -123,17 +117,29 @@
 		<state readOnly="true" pattern="%1$tF %1$tR"/>
 	</channel-type>
 
-	<channel-type id="nameType">
+	<channel-type id="CTType">
 		<item-type>String</item-type>
-		<label>Name</label>
-		<description>The name of the thing</description>
-		<state readOnly="true" pattern="%s"/>
+		<label>CT Type</label>
+		<description>CT Sensors have the following usages</description>
+		<state readOnly="true" pattern="%s">
+			<options>
+				<option value="None">None</option>
+				<option value="Grid">Grid</option>
+				<option value="Generation Only">Generation Only</option>
+				<option value="Storage Only">Storage Only</option>
+				<option value="Gen &amp; Battery">Gen &amp; Battery</option>
+				<option value="Monitor">Monitor</option>
+				<option value="AC Battery">AC Battery</option>
+			</options>
+		</state>
+
 	</channel-type>
 
 	<channel-type id="gridPowerType">
 		<item-type>Number:Power</item-type>
 		<label>Grid Power</label>
-		<description>The measured grid power</description>
+		<description>Grid power property shows the import and export power. It is used to determine if surplus power is
+			available.</description>
 		<category>Energy</category>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
@@ -141,7 +147,7 @@
 	<channel-type id="generatedPowerType">
 		<item-type>Number:Power</item-type>
 		<label>Generated Power</label>
-		<description>The generated power</description>
+		<description>Power from the generator (if available)</description>
 		<category>Energy</category>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
@@ -157,23 +163,37 @@
 	<channel-type id="consumedPowerType">
 		<item-type>Number:Power</item-type>
 		<label>Consumed Power</label>
-		<description>The total consumed power (grid + generated)</description>
+		<description>Power consumed by the house (if available)</description>
 		<category>Energy</category>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
 
-	<channel-type id="clampPowerType">
+	<channel-type id="clampPowerTypeL1">
 		<item-type>Number:Power</item-type>
 		<label>Clamp Power</label>
-		<description>The measured power at the clamp</description>
+		<description>The measured power at the CT L1</description>
 		<category>Energy</category>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
+    <channel-type id="clampPowerTypeL2">
+        <item-type>Number:Power</item-type>
+        <label>Clamp Power</label>
+        <description>The measured power at the  CT L2</description>
+        <category>Energy</category>
+        <state readOnly="true" pattern="%.1f %unit%"/>
+    </channel-type>
+    <channel-type id="clampPowerTypeL3">
+        <item-type>Number:Power</item-type>
+        <label>Clamp Power</label>
+        <description>The measured power at the  CT L3</description>
+        <category>Energy</category>
+        <state readOnly="true" pattern="%.1f %unit%"/>
+    </channel-type>
 
 	<channel-type id="phaseType">
 		<item-type>Number</item-type>
 		<label>Phase</label>
-		<description>The phase this clamp is attached to</description>
+		<description>The phase this CT is attached to</description>
 		<category>Energy</category>
 		<state readOnly="true" pattern="%d"/>
 	</channel-type>
@@ -188,7 +208,7 @@
 	<channel-type id="voltageType">
 		<item-type>Number:ElectricPotential</item-type>
 		<label>Voltage</label>
-		<description>The measured voltage</description>
+		<description>Supply voltage to the unit</description>
 		<category>Energy</category>
 		<state readOnly="true" pattern="%d %unit%"/>
 	</channel-type>
@@ -196,7 +216,7 @@
 	<channel-type id="frequencyType">
 		<item-type>Number:Frequency</item-type>
 		<label>Frequency</label>
-		<description>The measured frequency</description>
+		<description>Grid frequency</description>
 		<category>Energy</category>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
@@ -204,14 +224,14 @@
 	<channel-type id="chargeType">
 		<item-type>Number:Energy</item-type>
 		<label>Charge</label>
-		<description>The charge energy</description>
+		<description>Energy supplied to the EV during current charge session</description>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
 
 	<channel-type id="lockingModeType">
 		<item-type>Number</item-type>
 		<label>Locking Mode</label>
-		<description>The current locking mode of the device as bitmap</description>
+		<description>The current locking mode of the device as bitmap.Bit 0: Locked Now, Bit 1: Lock when plugged in, Bit 2: Lock when unplugged, Bit 3: Charge when locked, Bit 4: Charge Session Allowed (Even if locked)</description>
 		<state readOnly="true" pattern="%d"/>
 	</channel-type>
 
