@@ -79,19 +79,21 @@
 			<channel id="minimumGreenLevel" typeId="minimumGreenLevelType"/>
 			<channel id="gridPower" typeId="gridPowerType"/>
 			<channel id="generatedPower" typeId="generatedPowerType"/>
-			<channel id="divertedPower" typeId="divertedPowerType"/>
-			<channel id="consumedPower" typeId="consumedPowerType"/>
-			<channel id="chargeAdded" typeId="chargeType"/>
-			<channel id="smartBoostTime" typeId="boostEndTimeType"/>
-			<channel id="smartBoostCharge" typeId="chargeType"/>
-			<channel id="timedBoostTime" typeId="boostEndTimeType"/>
-			<channel id="timedBoostCharge" typeId="chargeType"/>
-			<channel id="clampName4" typeId="CTTypeL1"/>
-			<channel id="clampName5" typeId="CTTypeL2"/>
-			<channel id="clampName6" typeId="CTTypeL3"/>
-		    <channel id="clampPower4" typeId="clampPowerType"/>
-			<channel id="clampPower5" typeId="clampPowerType"/>
-			<channel id="clampPower6" typeId="clampPowerType"/>
+			<!--
+				<channel id="divertedPower" typeId="divertedPowerType"/>
+				<channel id="consumedPower" typeId="consumedPowerType"/>
+				<channel id="chargeAdded" typeId="chargeType"/>
+				<channel id="smartBoostTime" typeId="boostEndTimeType"/>
+				<channel id="smartBoostCharge" typeId="chargeType"/>
+				<channel id="timedBoostTime" typeId="boostEndTimeType"/>
+				<channel id="timedBoostCharge" typeId="chargeType"/>
+				<channel id="clampName4" typeId="CTType"/>
+				<channel id="clampName5" typeId="CTType"/>
+				<channel id="clampName6" typeId="CTType"/>
+				<channel id="clampPower4" typeId="clampPowerTypeL1"/>
+				<channel id="clampPower5" typeId="clampPowerTypeL2"/>
+				<channel id="clampPower6" typeId="clampPowerTypeL3"/> -->
+			<channel id="manualBoost" typeId="manualBoostType"/>
 		</channels>
 
 		<properties>
@@ -175,20 +177,20 @@
 		<category>Energy</category>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
-    <channel-type id="clampPowerTypeL2">
-        <item-type>Number:Power</item-type>
-        <label>Clamp Power</label>
-        <description>The measured power at the  CT L2</description>
-        <category>Energy</category>
-        <state readOnly="true" pattern="%.1f %unit%"/>
-    </channel-type>
-    <channel-type id="clampPowerTypeL3">
-        <item-type>Number:Power</item-type>
-        <label>Clamp Power</label>
-        <description>The measured power at the  CT L3</description>
-        <category>Energy</category>
-        <state readOnly="true" pattern="%.1f %unit%"/>
-    </channel-type>
+	<channel-type id="clampPowerTypeL2">
+		<item-type>Number:Power</item-type>
+		<label>Clamp Power</label>
+		<description>The measured power at the CT L2</description>
+		<category>Energy</category>
+		<state readOnly="true" pattern="%.1f %unit%"/>
+	</channel-type>
+	<channel-type id="clampPowerTypeL3">
+		<item-type>Number:Power</item-type>
+		<label>Clamp Power</label>
+		<description>The measured power at the CT L3</description>
+		<category>Energy</category>
+		<state readOnly="true" pattern="%.1f %unit%"/>
+	</channel-type>
 
 	<channel-type id="phaseType">
 		<item-type>Number</item-type>
@@ -231,7 +233,8 @@
 	<channel-type id="lockingModeType">
 		<item-type>Number</item-type>
 		<label>Locking Mode</label>
-		<description>The current locking mode of the device as bitmap.Bit 0: Locked Now, Bit 1: Lock when plugged in, Bit 2: Lock when unplugged, Bit 3: Charge when locked, Bit 4: Charge Session Allowed (Even if locked)</description>
+		<description>The current locking mode of the device as bitmap.Bit 0: Locked Now, Bit 1: Lock when plugged in, Bit 2:
+			Lock when unplugged, Bit 3: Charge when locked, Bit 4: Charge Session Allowed (Even if locked)</description>
 		<state readOnly="true" pattern="%d"/>
 	</channel-type>
 
@@ -239,12 +242,13 @@
 		<item-type>String</item-type>
 		<label>Charging Mode</label>
 		<description>The current charging mode of the device</description>
-		<state readOnly="true">
+		<state readOnly="false">
 			<options>
 				<option value="0">Boost</option>
 				<option value="1">Fast</option>
 				<option value="2">Eco</option>
 				<option value="3">Eco+</option>
+				<option value="4">Stop</option>
 			</options>
 		</state>
 	</channel-type>
@@ -299,9 +303,14 @@
 		<item-type>Number</item-type>
 		<label>Minimum Green Level</label>
 		<description>The minimum percentage of green energy to allow charging</description>
-		<state readOnly="true" pattern="%d %%"/>
+		<state readOnly="false" pattern="%d %%"/>
 	</channel-type>
-
+	<channel-type id="manualBoostType">
+		<item-type>Switch</item-type>
+		<label>Manual Boost</label>
+		<description>Is ON if manual boost is active</description>
+		<state readOnly="false"/>
+	</channel-type>
 	<channel-type id="boostEndTimeType">
 		<item-type>String</item-type>
 		<label>Boost End Time</label>

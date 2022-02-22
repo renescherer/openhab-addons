@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2022 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -13,6 +13,7 @@
 package org.openhab.binding.myenergi.internal.util;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.binding.myenergi.internal.exception.ApiException;
 
 /**
  * The {@link ZappiChargingMode} enumeration is used to model the various Zappi charging modes.
@@ -25,7 +26,8 @@ public enum ZappiChargingMode {
     BOOST(0),
     FAST(1),
     ECO(2),
-    ECO_PLUS(3);
+    ECO_PLUS(3),
+    STOP(4);
 
     private final int intValue;
 
@@ -35,5 +37,14 @@ public enum ZappiChargingMode {
 
     public int getIntValue() {
         return intValue;
+    }
+
+    static public ZappiChargingMode fromInteger(final int intValue) throws ApiException {
+        for (ZappiChargingMode m : ZappiChargingMode.values()) {
+            if (m.getIntValue() == intValue) {
+                return m;
+            }
+        }
+        throw new ApiException("Unknown Zappi Charging Mode " + intValue);
     }
 }

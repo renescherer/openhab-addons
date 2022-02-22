@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2022 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -68,6 +68,7 @@ public class MyEnergiBindingConstants {
     public static final String ZAPPI_CHANNEL_DIVERTED_POWER = "divertedPower";
     public static final String ZAPPI_CHANNEL_CONSUMED_POWER = "consumedPower";
     public static final String ZAPPI_CHANNEL_CHARGE_ADDED = "chargeAdded";
+    public static final String ZAPPI_CHANNEL_MANUAL_BOOST = "manualBoost";
     public static final String ZAPPI_CHANNEL_SMART_BOOST_TIME = "smartBoostTime";
     public static final String ZAPPI_CHANNEL_SMART_BOOST_CHARGE = "smartBoostCharge";
     public static final String ZAPPI_CHANNEL_TIMED_BOOST_TIME = "timedBoostTime";

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2022 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -30,6 +30,15 @@ public class ZappiSummary extends BaseSummary {
 
     // {"dat":"27-11-2020","tim":"16:02:06","ectp2":843,"ectt1":"Internal
     // Load","ectt2":"Grid","ectt3":"None","frq":50.12,"grd":841,"pha":1,"sno":17028110,"sta":1,"vol":235.0,"pri":1,"cmt":254,"zmo":1,"tbk":5,"che":0.00,"pst":"A","mgl":50,"sbh":17,"sbk":5,"ectt4":"None","ectt5":"None","ectt6":"None","fwv":"3560S3.054","dst":1,"lck":16}
+    // new Feb 2022:
+    // "bsm" Boost 1 = manual Boost
+    // "bst" Boost time 0 ???
+    // "bss" 0 ???
+    // "tz" 0 ???
+    // "zs" 0 ???
+    // Removed in Feb 22
+    // tbh
+    // tbm
 
     @SerializedName("vol")
     public Float supplyVoltageInTenthVolt;
@@ -73,13 +82,30 @@ public class ZappiSummary extends BaseSummary {
     @SerializedName("sbk")
     public Double smartBoostCharge;
 
-    // Timed Boost
+    // Timed Boost Removed Feb 22
     @SerializedName("tbh")
     public Integer timedBoostHour;
     @SerializedName("tbm")
     public Integer timedBoostMinute;
     @SerializedName("tbk")
-    public Double timedBoostCharge; // - Note charge remaining for boost = tbk-che
+    public Double manualBoostCharge; // planned boost Energy for manual boost - Note charge remaining for boost =
+                                     // tbk-che
+
+    @SerializedName("bsm")
+    public int manualBoostInt; // 1 manual Boost
+
+    public boolean getManualBoost() {
+        return (manualBoostInt != 0);
+    }; // 1 manual Boost
+
+    @SerializedName("bst")
+    public Integer bst;
+    @SerializedName("bss")
+    public Integer bss;
+    @SerializedName("tz")
+    public Integer tz;
+    @SerializedName("zs")
+    public Integer zs;
 
     // CT Clamps
     @SerializedName("ectt1")
@@ -122,7 +148,7 @@ public class ZappiSummary extends BaseSummary {
                 + gridPower + ", generatedPower=" + generatedPower + ",  divertedPower=" + divertedPower
                 + ", chargeAdded=" + chargeAdded + ", smartBoostHour=" + smartBoostHour + ", smartBoostMinute="
                 + smartBoostMinute + ", smartBoostCharge=" + smartBoostCharge + ", timedBoostHour=" + timedBoostHour
-                + ", timedBoostMinute=" + timedBoostMinute + ", timedBoostCharge=" + timedBoostCharge + ", clampName1="
+                + ", timedBoostMinute=" + timedBoostMinute + ", timedBoostCharge=" + manualBoostCharge + ", clampName1="
                 + clampName1 + ", clampName2=" + clampName2 + ", clampName3=" + clampName3 + ", clampName4="
                 + clampName4 + ", clampName5=" + clampName5 + ", clampName6=" + clampName6 + ", clampPower1="
                 + clampPower1 + ", clampPower2=" + clampPower2 + ", clampPower3=" + clampPower3 + ", clampPower4="
@@ -146,7 +172,8 @@ public class ZappiSummary extends BaseSummary {
         logger.info("gridPower={}, generatedPower={}, divertedPower={}", gridPower, generatedPower, divertedPower);
         logger.info("chargeAdded={}", chargeAdded);
         logger.info("smartBoostTime={}:{}, Charge={}", smartBoostHour, smartBoostMinute, smartBoostCharge);
-        logger.info("timedBoostTime={}:{}, Charge={}", timedBoostHour, timedBoostMinute, timedBoostCharge);
+        logger.info("manualBoost={}", getManualBoost());
+        logger.info("timedBoostTime={}:{}, Charge={}", timedBoostHour, timedBoostMinute, manualBoostCharge);
         logger.info("clamp1={}, power={}", clampName1, clampPower1);
         logger.info("clamp2={}, power={}", clampName2, clampPower2);
         logger.info("clamp3={}, power={}", clampName3, clampPower3);

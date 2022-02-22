@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2022 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -23,6 +23,7 @@ import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
 import org.openhab.binding.myenergi.internal.exception.ApiException;
 import org.openhab.binding.myenergi.internal.exception.RecordNotFoundException;
+import org.openhab.binding.myenergi.internal.util.ZappiChargingMode;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.binding.ThingHandlerService;
@@ -52,12 +53,32 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (command instanceof RefreshType) {
-            updateThingCache.getValue();
-        } else {
-            switch (channelUID.getId()) {
-                case ZAPPI_CHANNEL_CHARGING_MODE:
+        try {
+
+            if (command instanceof RefreshType) {
+                updateThingCache.getValue();
+            } else {
+                String serialNumberString = this.thing.getProperties().get("serialNumber");
+                if (serialNumberString == null) {
+                    throw new ApiException("SerialNumber not found in thing properties " + thing.getUID().toString());
+                }
+                long serialNumber = Long.parseLong(serialNumberString);
+                switch (channelUID.getId()) {
+                    case ZAPPI_CHANNEL_CHARGING_MODE:
+                        apiClient.setZappiChargingMode(serialNumber,
+                                ZappiChargingMode.fromInteger(Integer.parseInt(command.toString())));
+                        break;
+                    case ZAPPI_CHANNEL_MINIMUM_GREEN_LEVEL:
+                        apiClient.setZappiMinimumGreenLevel(serialNumber, Integer.parseInt(command.toString()));
+                        break;
+                    case ZAPPI_CHANNEL_MANUAL_BOOST:
+                        ZappiSummary zs = apiClient.updateZappiSummary(serialNumber);
+                        apiClient.setZappiManualBoost(serialNumber, zs.manualBoostCharge.intValue());
+                }
             }
+        } catch (NumberFormatException | ApiException | RecordNotFoundException e) {
+            logger.error("invalid command{}: serialNumber: {} message: {}", channelUID.getId(), serialNumber,
+                    e.getMessage());
         }
     }
 
@@ -80,6 +101,7 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
             updateIntegerState(ZAPPI_CHANNEL_COMMAND_TRIES, device.commandTries);
             updateIntegerState(ZAPPI_CHANNEL_DIVERTER_PRIORITY, device.diverterPriority);
             updateIntegerState(ZAPPI_CHANNEL_MINIMUM_GREEN_LEVEL, device.minimumGreenLevel);
+            updateIntegerState(ZAPPI_CHANNEL_MANUAL_BOOST, device.getManualBoost() ? 1 : 0);
 
             updatePowerState(ZAPPI_CHANNEL_GRID_POWER, device.gridPower, WATT);
             updatePowerState(ZAPPI_CHANNEL_GENERATED_POWER, device.generatedPower, WATT);
@@ -93,7 +115,7 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
             updateStringState(ZAPPI_CHANNEL_SMART_BOOST_TIME, device.smartBoostHour + ":" + device.smartBoostMinute);
             updateEnergyState(ZAPPI_CHANNEL_SMART_BOOST_CHARGE, device.smartBoostCharge, KILOWATT_HOUR);
             updateStringState(ZAPPI_CHANNEL_TIMED_BOOST_TIME, device.timedBoostHour + ":" + device.timedBoostMinute);
-            updateEnergyState(ZAPPI_CHANNEL_TIMED_BOOST_CHARGE, device.timedBoostCharge, KILOWATT_HOUR);
+            updateEnergyState(ZAPPI_CHANNEL_TIMED_BOOST_CHARGE, device.manualBoostCharge, KILOWATT_HOUR);
 
             updateStringState(ZAPPI_CHANNEL_CLAMP_NAME_1, device.clampName1);
             updateStringState(ZAPPI_CHANNEL_CLAMP_NAME_2, device.clampName2);

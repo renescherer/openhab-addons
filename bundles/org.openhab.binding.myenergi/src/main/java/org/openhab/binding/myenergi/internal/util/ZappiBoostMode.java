@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2022 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -26,7 +26,7 @@ public enum ZappiBoostMode {
     STOP(2),
 
     // starts a new boost cycle immediately up to the given KWh charge
-    NORMAL(10),
+    MANUAL(10),
 
     // starts a new smart boost cycle up to given KWh charge and departure time
     SMART(11);

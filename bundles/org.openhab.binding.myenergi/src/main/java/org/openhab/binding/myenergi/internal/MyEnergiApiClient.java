@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2022 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -247,6 +247,20 @@ public class MyEnergiApiClient {
         }
     }
 
+    public CommandStatus setZappiMinimumGreenLevel(long zappiSerialNumber, int newLevel) throws ApiException {
+        String response = executeApiCall("/cgi-set-min-green-Z" + zappiSerialNumber + "-" + newLevel);
+        try {
+            CommandStatus status = MyEnergiBindingConstants.GSON.fromJson(response, CommandStatus.class);
+            if (status != null) {
+                return status;
+            } else {
+                throw new ApiException("Unexpected JSON response: " + response);
+            }
+        } catch (JsonSyntaxException e) {
+            throw new ApiException("Unable to deserialize JSON response: " + response, e);
+        }
+    }
+
     public CommandStatus setZappiChargingMode(long zappiSerialNumber, ZappiChargingMode mode) throws ApiException {
         String response = executeApiCall(
                 "/cgi-zappi-mode-Z" + zappiSerialNumber + "-" + mode.getIntValue() + "-0-0-0000");
@@ -301,13 +315,13 @@ public class MyEnergiApiClient {
         }
     }
 
-    public CommandStatus setZappiBoostMode(String serialNumber, ZappiBoostMode mode, int energyKiloWattHours,
+    private CommandStatus setZappiBoostMode(long serialNumber, ZappiBoostMode mode, int energyKiloWattHours,
             @Nullable String departureTime) throws ApiException {
         StringBuilder uriStr = new StringBuilder("/cgi-zappi-mode-Z");
         uriStr.append(serialNumber);
         uriStr.append('-');
         uriStr.append(ZappiChargingMode.BOOST.getIntValue());
-        uriStr.append('-');
+        uriStr.append("-0-"); // Slot is always
         uriStr.append(mode.getIntValue());
         uriStr.append('-');
         uriStr.append(energyKiloWattHours);
@@ -328,6 +342,15 @@ public class MyEnergiApiClient {
         } catch (JsonSyntaxException e) {
             throw new ApiException("Unable to deserialize JSON response: " + response, e);
         }
+    }
+
+    public CommandStatus setZappiManualBoost(Long serialNumber, int energyKiloWattHours) throws ApiException {
+        return setZappiBoostMode(serialNumber, ZappiBoostMode.MANUAL, energyKiloWattHours, null);
+    }
+
+    public CommandStatus setZappiSmartBoost(Long serialNumber, int energyKiloWattHours, String departureTime)
+            throws ApiException {
+        return setZappiBoostMode(serialNumber, ZappiBoostMode.SMART, energyKiloWattHours, departureTime);
     }
 
     private String executeApiCall(String path) throws ApiException {
@@ -362,7 +385,7 @@ public class MyEnergiApiClient {
                             request.header(HttpHeader.CONTENT_TYPE, "application/json; utf-8");
                             request.header(HttpHeader.USER_AGENT, API_USER_AGENT);
 
-                            logger.info("sending API request attempt# {}: {}", innerLoop, url.toString());
+                            logger.debug("sending API request attempt# {}: {}", innerLoop, url.toString());
 
                             ContentResponse response = request.send();
                             lastResponseStatus = response.getStatus();
@@ -376,7 +399,7 @@ public class MyEnergiApiClient {
                             if ((lastResponseStatus == HttpURLConnection.HTTP_OK)
                                     || (lastResponseStatus == HttpURLConnection.HTTP_CREATED)) {
                                 String apiResponse = response.getContentAsString();
-                                logger.info("Api response: {}", apiResponse);
+                                logger.debug("Api response: {}", apiResponse);
                                 return apiResponse;
                             } else {
                                 if (lastResponseStatus == HttpURLConnection.HTTP_UNAUTHORIZED) {
