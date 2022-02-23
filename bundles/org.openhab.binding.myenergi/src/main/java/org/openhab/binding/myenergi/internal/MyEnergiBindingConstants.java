@@ -52,39 +52,52 @@ public class MyEnergiBindingConstants {
             Arrays.asList(THING_TYPE_ZAPPI, THING_TYPE_EDDI, THING_TYPE_HARVI));
 
     // Zappi Channel Names
-    public static final String ZAPPI_CHANNEL_LAST_UPDATED_TIME = "lastUpdatedTime";
-    public static final String ZAPPI_CHANNEL_SUPPLY_VOLTAGE = "supplyVoltage";
-    public static final String ZAPPI_CHANNEL_SUPPLY_FREQUENCY = "supplyFrequency";
-    public static final String ZAPPI_CHANNEL_NUMBER_OF_PHASES = "numberOfPhases";
-    public static final String ZAPPI_CHANNEL_LOCKING_MODE = "lockingMode";
-    public static final String ZAPPI_CHANNEL_CHARGING_MODE = "chargingMode";
-    public static final String ZAPPI_CHANNEL_STATUS = "status";
-    public static final String ZAPPI_CHANNEL_PLUG_STATUS = "plugStatus";
-    public static final String ZAPPI_CHANNEL_COMMAND_TRIES = "commandTries";
-    public static final String ZAPPI_CHANNEL_DIVERTER_PRIORITY = "diverterPriority";
-    public static final String ZAPPI_CHANNEL_MINIMUM_GREEN_LEVEL = "minimumGreenLevel";
-    public static final String ZAPPI_CHANNEL_GRID_POWER = "gridPower";
-    public static final String ZAPPI_CHANNEL_GENERATED_POWER = "generatedPower";
-    public static final String ZAPPI_CHANNEL_DIVERTED_POWER = "divertedPower";
-    public static final String ZAPPI_CHANNEL_CONSUMED_POWER = "consumedPower";
-    public static final String ZAPPI_CHANNEL_CHARGE_ADDED = "chargeAdded";
-    public static final String ZAPPI_CHANNEL_MANUAL_BOOST = "manualBoost";
-    public static final String ZAPPI_CHANNEL_SMART_BOOST_TIME = "smartBoostTime";
-    public static final String ZAPPI_CHANNEL_SMART_BOOST_CHARGE = "smartBoostCharge";
-    public static final String ZAPPI_CHANNEL_TIMED_BOOST_TIME = "timedBoostTime";
-    public static final String ZAPPI_CHANNEL_TIMED_BOOST_CHARGE = "timedBoostCharge";
-    public static final String ZAPPI_CHANNEL_CLAMP_NAME_1 = "clampName1";
-    public static final String ZAPPI_CHANNEL_CLAMP_NAME_2 = "clampName2";
-    public static final String ZAPPI_CHANNEL_CLAMP_NAME_3 = "clampName3";
-    public static final String ZAPPI_CHANNEL_CLAMP_NAME_4 = "clampName4";
-    public static final String ZAPPI_CHANNEL_CLAMP_NAME_5 = "clampName5";
-    public static final String ZAPPI_CHANNEL_CLAMP_NAME_6 = "clampName6";
-    public static final String ZAPPI_CHANNEL_CLAMP_POWER_1 = "clampPower1";
-    public static final String ZAPPI_CHANNEL_CLAMP_POWER_2 = "clampPower2";
-    public static final String ZAPPI_CHANNEL_CLAMP_POWER_3 = "clampPower3";
-    public static final String ZAPPI_CHANNEL_CLAMP_POWER_4 = "clampPower4";
-    public static final String ZAPPI_CHANNEL_CLAMP_POWER_5 = "clampPower5";
-    public static final String ZAPPI_CHANNEL_CLAMP_POWER_6 = "clampPower6";
+    public static final String ZAPPI_CHANNEL_LAST_UPDATED_TIME = "device#lastUpdatedTime";
+    public static final String ZAPPI_CHANNEL_NUMBER_OF_PHASES = "device#numberOfPhases";
+    public static final String ZAPPI_CHANNEL_LOCKING_MODE = "device#lockingMode";
+    public static final String ZAPPI_CHANNEL_CHARGING_MODE = "device#chargingMode";
+    public static final String ZAPPI_CHANNEL_STATUS = "device#status";
+    public static final String ZAPPI_CHANNEL_PLUG_STATUS = "device#plugStatus";
+    public static final String ZAPPI_CHANNEL_COMMAND_TRIES = "device#commandTries";
+    public static final String ZAPPI_CHANNEL_DIVERTER_PRIORITY = "device#diverterPriority";
+    public static final String ZAPPI_CHANNEL_MINIMUM_GREEN_LEVEL = "device#minimumGreenLevel";
+    public static final String ZAPPI_CHANNEL_SUPPLY_VOLTAGE = "device#supplyVoltage";
+    public static final String ZAPPI_CHANNEL_SUPPLY_FREQUENCY = "device#supplyFrequency";
+    public static final String ZAPPI_CHANNEL_GRID_POWER = "device#gridPower";
+    public static final String ZAPPI_CHANNEL_GENERATED_POWER = "device#generatedPower";
+    public static final String ZAPPI_CHANNEL_DIVERTED_POWER = "device#divertedPower";
+    public static final String ZAPPI_CHANNEL_CONSUMED_POWER = "device#consumedPower";
+    public static final String ZAPPI_CHANNEL_CHARGE_ADDED = "device#chargeAdded";
+
+    public static final String ZAPPI_CHANNEL_SMART_BOOST_END_TIME_HOUR = "smartBoost#endTimeHour";
+    public static final String ZAPPI_CHANNEL_SMART_BOOST_END_TIME_MINUTE = "smartBoost#endTimeMinute";
+    public static final String ZAPPI_CHANNEL_SMART_BOOST_CHARGE = "smartBoost#smartBoostCharge";
+    public static final String ZAPPI_CHANNEL_SMART_BOOST_STATUS = "smartBoost#boostStatus";
+    public static final String ZAPPI_CHANNEL_SMART_BOOST_STOPALL = "smartBoost#stopAll";
+
+    public static final String ZAPPI_CHANNEL_MANUAL_BOOST_STATUS = "manualBoost#boostStatus";
+    public static final String ZAPPI_CHANNEL_MANUAL_BOOST_CHARGE = "manualBoost#manualBoostCharge";
+    public static final String ZAPPI_CHANNEL_NEW_MANUAL_BOOST_CHARGE = "manualBoost#newManualBoostCharge";
+    public static final String ZAPPI_CHANNEL_MANUAL_BOOST_STOPALL = "manualBoost#stopAll";
+
+    public static final String ZAPPI_CHANNEL_CLAMP_NAME_1 = "clamp#clampName1";
+    public static final String ZAPPI_CHANNEL_CLAMP_NAME_2 = "clamp#clampName2";
+    public static final String ZAPPI_CHANNEL_CLAMP_NAME_3 = "clamp#clampName3";
+    public static final String ZAPPI_CHANNEL_CLAMP_POWER_1 = "clamp#clampPower1";
+    public static final String ZAPPI_CHANNEL_CLAMP_POWER_2 = "clamp#clampPower2";
+    public static final String ZAPPI_CHANNEL_CLAMP_POWER_3 = "clamp#clampPower3";
+    public static final String ZAPPI_CHANNEL_GROUP_TIMED_BOOST_SLOT = "timedBoostSlot";
+    public static final String ZAPPI_CHANNEL_TIMED_BOOST_MONDAY = "monday";
+    public static final String ZAPPI_CHANNEL_TIMED_BOOST_TUESDAY = "tuesday";
+    public static final String ZAPPI_CHANNEL_TIMED_BOOST_WEDNESDAY = "wednesday";
+    public static final String ZAPPI_CHANNEL_TIMED_BOOST_THURSDAY = "thursday";
+    public static final String ZAPPI_CHANNEL_TIMED_BOOST_FRIDAY = "friday";
+    public static final String ZAPPI_CHANNEL_TIMED_BOOST_SATURDAY = "saturday";
+    public static final String ZAPPI_CHANNEL_TIMED_BOOST_SUNDAY = "sunday";
+    public static final String ZAPPI_CHANNEL_TIMED_BOOST_START_HOUR = "startHour";
+    public static final String ZAPPI_CHANNEL_TIMED_BOOST_START_MINUTE = "startMinute";
+    public static final String ZAPPI_CHANNEL_TIMED_BOOST_DURATION = "duration";
+    public static final String ZAPPI_CHANNEL_TIMED_BOOST_CANCEL = "cancel";
 
     // Harvi Channel Names
     public static final String HARVI_CHANNEL_LAST_UPDATED_TIME = "lastUpdatedTime";

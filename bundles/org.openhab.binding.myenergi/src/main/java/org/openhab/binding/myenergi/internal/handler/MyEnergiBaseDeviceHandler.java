@@ -131,7 +131,7 @@ public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler impleme
     }
 
     @Override
-    public void updateProperties(Map<String, String> properties) {
+    public void updateProperties(@Nullable Map<String, String> properties) {
         logger.debug("Updating thing properties");
         super.updateProperties(properties);
     }
@@ -183,7 +183,15 @@ public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler impleme
         }
     }
 
-    protected void updateIntegerState(final String channelId, @Nullable Integer value) {
+    protected void updateIntegerState(final String channelId, @Nullable Integer value, boolean allowNulls) {
+        if (value != null) {
+            updateState(channelId, new DecimalType(value));
+        } else if (!allowNulls) {
+            updateState(channelId, new DecimalType(0));
+        }
+    }
+
+    protected void updateDoubleState(final String channelId, @Nullable Double value) {
         if (value != null) {
             updateState(channelId, new DecimalType(value));
         }

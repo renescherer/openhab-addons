@@ -17,9 +17,12 @@ import static org.openhab.core.library.unit.Units.*;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
+import org.openhab.binding.myenergi.internal.dto.ZappiBoostTimeSlot;
+import org.openhab.binding.myenergi.internal.dto.ZappiBoostTimes;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
 import org.openhab.binding.myenergi.internal.exception.ApiException;
 import org.openhab.binding.myenergi.internal.exception.RecordNotFoundException;
@@ -46,6 +49,12 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
         super(thing, apiClient);
     }
 
+    final String dayNames[] = { ZAPPI_CHANNEL_TIMED_BOOST_MONDAY, ZAPPI_CHANNEL_TIMED_BOOST_TUESDAY,
+            ZAPPI_CHANNEL_TIMED_BOOST_WEDNESDAY, ZAPPI_CHANNEL_TIMED_BOOST_THURSDAY, ZAPPI_CHANNEL_TIMED_BOOST_FRIDAY,
+            ZAPPI_CHANNEL_TIMED_BOOST_SATURDAY, ZAPPI_CHANNEL_TIMED_BOOST_SUNDAY };
+
+    double newManualBoostCharge = 0;
+
     @Override
     public Collection<Class<? extends ThingHandlerService>> getServices() {
         return Collections.singleton(MyEnergiZappiActions.class);
@@ -58,27 +67,87 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
             if (command instanceof RefreshType) {
                 updateThingCache.getValue();
             } else {
-                String serialNumberString = this.thing.getProperties().get("serialNumber");
-                if (serialNumberString == null) {
-                    throw new ApiException("SerialNumber not found in thing properties " + thing.getUID().toString());
-                }
-                long serialNumber = Long.parseLong(serialNumberString);
-                switch (channelUID.getId()) {
-                    case ZAPPI_CHANNEL_CHARGING_MODE:
-                        apiClient.setZappiChargingMode(serialNumber,
-                                ZappiChargingMode.fromInteger(Integer.parseInt(command.toString())));
-                        break;
-                    case ZAPPI_CHANNEL_MINIMUM_GREEN_LEVEL:
-                        apiClient.setZappiMinimumGreenLevel(serialNumber, Integer.parseInt(command.toString()));
-                        break;
-                    case ZAPPI_CHANNEL_MANUAL_BOOST:
-                        ZappiSummary zs = apiClient.updateZappiSummary(serialNumber);
-                        apiClient.setZappiManualBoost(serialNumber, zs.manualBoostCharge.intValue());
+                if (channelUID.getId().startsWith(ZAPPI_CHANNEL_GROUP_TIMED_BOOST_SLOT)) {
+                    handleCommandStartTimedBoost(channelUID, command);
+                } else {
+                    switch (channelUID.getId()) {
+                        case ZAPPI_CHANNEL_CHARGING_MODE:
+                            apiClient.setZappiChargingMode(serialNumber,
+                                    ZappiChargingMode.fromInteger(Integer.parseInt(command.toString())));
+                            break;
+                        case ZAPPI_CHANNEL_MINIMUM_GREEN_LEVEL:
+                            apiClient.setZappiMinimumGreenLevel(serialNumber, Integer.parseInt(command.toString()));
+                            break;
+                        case ZAPPI_CHANNEL_NEW_MANUAL_BOOST_CHARGE:
+                            newManualBoostCharge = Double.parseDouble(command.toString());
+                        case ZAPPI_CHANNEL_MANUAL_BOOST_STATUS:
+                            apiClient.setZappiManualBoost(serialNumber, (int) newManualBoostCharge);
+                    }
                 }
             }
-        } catch (NumberFormatException | ApiException | RecordNotFoundException e) {
-            logger.error("invalid command{}: serialNumber: {} message: {}", channelUID.getId(), serialNumber,
-                    e.getMessage());
+        } catch (NumberFormatException | ApiException e) {
+            logger.error("unable to execute command channel:{} command{}: serialNumber: {} message: {}",
+                    channelUID.getId(), command.toString(), serialNumber, e.getMessage());
+        }
+    }
+
+    private void handleCommandStartTimedBoost(ChannelUID channelUID, Command command) throws ApiException {
+        int slotIndex = channelUID.getId().indexOf('#') - 1;
+        char slot = (char) (channelUID.getId().charAt(slotIndex) - '0');
+        // String channelPrefix = ZAPPI_CHANNEL_GROUP_TIMED_BOOST_SLOT + Character.toString(slot) + "#";
+        String channel = channelUID.getId().substring(slotIndex + 1);
+        ZappiBoostTimes boostTimes = apiClient.getZappiBoostTimes(serialNumber);
+        Iterator<ZappiBoostTimeSlot> iter = boostTimes.boostTimes.iterator();
+        while (iter.hasNext()) {
+            ZappiBoostTimeSlot s = iter.next();
+            if (s.slotId == slot - '0' + 10) {
+                switch (channel) {
+                    case ZAPPI_CHANNEL_TIMED_BOOST_MONDAY:
+                    case ZAPPI_CHANNEL_TIMED_BOOST_TUESDAY:
+                    case ZAPPI_CHANNEL_TIMED_BOOST_WEDNESDAY:
+                    case ZAPPI_CHANNEL_TIMED_BOOST_THURSDAY:
+                    case ZAPPI_CHANNEL_TIMED_BOOST_FRIDAY:
+                    case ZAPPI_CHANNEL_TIMED_BOOST_SATURDAY:
+                    case ZAPPI_CHANNEL_TIMED_BOOST_SUNDAY:
+
+                        StringBuilder sb = new StringBuilder(s.daysOfTheWeekMap);
+                        int dayIdx = -1;
+                        for (int i = 0; i < dayNames.length && dayIdx < 0; i++) {
+                            if (dayNames[i] == channel) {
+                                dayIdx = i;
+                            }
+                        }
+                        if (dayIdx >= 0) {
+                            sb.setCharAt(dayIdx, command.toString() == "ON" ? '1' : '0');
+                        } else {
+                            throw new ApiException(
+                                    "invalid dayOfWeekMap map:" + s.daysOfTheWeekMap + "day: {}" + channel);
+                        }
+                        s.daysOfTheWeekMap = sb.toString();
+                        break;
+                    case ZAPPI_CHANNEL_TIMED_BOOST_START_HOUR:
+                        s.startHour = Integer.parseInt(command.toString());
+                        break;
+                    case ZAPPI_CHANNEL_TIMED_BOOST_START_MINUTE:
+                        s.startMinute = Integer.parseInt(command.toString());
+                        break;
+                    case ZAPPI_CHANNEL_TIMED_BOOST_DURATION:
+                        s.durationHour = Integer.parseInt(command.toString());
+                        s.durationMinute = (int) ((Double.parseDouble(command.toString()) % 1) * 60);
+                        break;
+                    case ZAPPI_CHANNEL_TIMED_BOOST_CANCEL:
+                        s.daysOfTheWeekMap = "";
+                        s.startHour = 0;
+                        s.startMinute = 0;
+                        s.durationHour = 0;
+                        s.durationMinute = 0;
+                        break;
+                    default:
+                        logger.warn("unknown channel for update timed boost {}", channel);
+                        return;
+                }
+                apiClient.setZappiBoostTimes(serialNumber, s);
+            }
         }
     }
 
@@ -87,21 +156,21 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
         try {
             logger.debug("Updating all thing channels for device : {}", serialNumber);
             ZappiSummary device = apiClient.getData().getZappiBySerialNumber(serialNumber);
-
+            // Device group ===============================================
             updateDateTimeState(ZAPPI_CHANNEL_LAST_UPDATED_TIME, device.getLastUpdateTime());
-            updateElectricPotentialState(ZAPPI_CHANNEL_SUPPLY_VOLTAGE, device.supplyVoltageInTenthVolt / 10.0f, VOLT);
-            updateFrequencyState(ZAPPI_CHANNEL_SUPPLY_FREQUENCY, device.supplyFrequency, HERTZ);
 
-            updateIntegerState(ZAPPI_CHANNEL_NUMBER_OF_PHASES, device.numberOfPhases);
-            updateIntegerState(ZAPPI_CHANNEL_LOCKING_MODE, device.lockingMode);
+            updateIntegerState(ZAPPI_CHANNEL_NUMBER_OF_PHASES, device.numberOfPhases, false);
+            updateIntegerState(ZAPPI_CHANNEL_LOCKING_MODE, device.lockingMode, false);
             updateStringState(ZAPPI_CHANNEL_CHARGING_MODE, device.chargingMode.toString());
             updateStringState(ZAPPI_CHANNEL_STATUS, device.status.toString());
             updateStringState(ZAPPI_CHANNEL_PLUG_STATUS, device.plugStatus);
 
-            updateIntegerState(ZAPPI_CHANNEL_COMMAND_TRIES, device.commandTries);
-            updateIntegerState(ZAPPI_CHANNEL_DIVERTER_PRIORITY, device.diverterPriority);
-            updateIntegerState(ZAPPI_CHANNEL_MINIMUM_GREEN_LEVEL, device.minimumGreenLevel);
-            updateIntegerState(ZAPPI_CHANNEL_MANUAL_BOOST, device.getManualBoost() ? 1 : 0);
+            updateIntegerState(ZAPPI_CHANNEL_COMMAND_TRIES, device.commandTries, false);
+            updateIntegerState(ZAPPI_CHANNEL_DIVERTER_PRIORITY, device.diverterPriority, false);
+            updateIntegerState(ZAPPI_CHANNEL_MINIMUM_GREEN_LEVEL, device.minimumGreenLevel, false);
+
+            updateElectricPotentialState(ZAPPI_CHANNEL_SUPPLY_VOLTAGE, device.supplyVoltageInTenthVolt / 10.0f, VOLT);
+            updateFrequencyState(ZAPPI_CHANNEL_SUPPLY_FREQUENCY, device.supplyFrequency, HERTZ);
 
             updatePowerState(ZAPPI_CHANNEL_GRID_POWER, device.gridPower, WATT);
             updatePowerState(ZAPPI_CHANNEL_GENERATED_POWER, device.generatedPower, WATT);
@@ -111,27 +180,50 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
             updatePowerState(ZAPPI_CHANNEL_CONSUMED_POWER, consumedPower, WATT);
 
             updateEnergyState(ZAPPI_CHANNEL_CHARGE_ADDED, device.chargeAdded, KILOWATT_HOUR);
-
-            updateStringState(ZAPPI_CHANNEL_SMART_BOOST_TIME, device.smartBoostHour + ":" + device.smartBoostMinute);
+            // smart boost group ===============================================
+            updateIntegerState(ZAPPI_CHANNEL_SMART_BOOST_END_TIME_HOUR, device.smartBoostHour, false);
+            updateIntegerState(ZAPPI_CHANNEL_SMART_BOOST_END_TIME_MINUTE, device.smartBoostMinute, false);
             updateEnergyState(ZAPPI_CHANNEL_SMART_BOOST_CHARGE, device.smartBoostCharge, KILOWATT_HOUR);
-            updateStringState(ZAPPI_CHANNEL_TIMED_BOOST_TIME, device.timedBoostHour + ":" + device.timedBoostMinute);
-            updateEnergyState(ZAPPI_CHANNEL_TIMED_BOOST_CHARGE, device.manualBoostCharge, KILOWATT_HOUR);
-
+            updateIntegerState(ZAPPI_CHANNEL_SMART_BOOST_STOPALL, 0, false);
+            // manual Boost group ===============================================
+            updateIntegerState(ZAPPI_CHANNEL_MANUAL_BOOST_STATUS, device.getManualBoost() ? 1 : 0, false);
+            updateEnergyState(ZAPPI_CHANNEL_MANUAL_BOOST_CHARGE, device.manualBoostCharge, KILOWATT_HOUR);
+            if (newManualBoostCharge == 0) {
+                newManualBoostCharge = device.manualBoostCharge;
+            }
+            updateEnergyState(ZAPPI_CHANNEL_NEW_MANUAL_BOOST_CHARGE, device.manualBoostCharge, KILOWATT_HOUR);
+            updateIntegerState(ZAPPI_CHANNEL_MANUAL_BOOST_STOPALL, 0, false);
+            // clamp group ===============================================
             updateStringState(ZAPPI_CHANNEL_CLAMP_NAME_1, device.clampName1);
             updateStringState(ZAPPI_CHANNEL_CLAMP_NAME_2, device.clampName2);
             updateStringState(ZAPPI_CHANNEL_CLAMP_NAME_3, device.clampName3);
-            updateStringState(ZAPPI_CHANNEL_CLAMP_NAME_4, device.clampName4);
-            updateStringState(ZAPPI_CHANNEL_CLAMP_NAME_5, device.clampName5);
-            updateStringState(ZAPPI_CHANNEL_CLAMP_NAME_6, device.clampName6);
 
             updatePowerState(ZAPPI_CHANNEL_CLAMP_POWER_1, device.clampPower1, WATT);
             updatePowerState(ZAPPI_CHANNEL_CLAMP_POWER_2, device.clampPower2, WATT);
             updatePowerState(ZAPPI_CHANNEL_CLAMP_POWER_3, device.clampPower3, WATT);
-            updatePowerState(ZAPPI_CHANNEL_CLAMP_POWER_4, device.clampPower4, WATT);
-            updatePowerState(ZAPPI_CHANNEL_CLAMP_POWER_5, device.clampPower5, WATT);
-            updatePowerState(ZAPPI_CHANNEL_CLAMP_POWER_6, device.clampPower6, WATT);
-        } catch (RecordNotFoundException e) {
+            updateBoostTimeSlots();
+
+        } catch (RecordNotFoundException | ApiException e) {
             logger.debug("Trying to update unknown device: {}", thing.getUID().getId());
+        }
+    }
+
+    private void updateBoostTimeSlots() throws ApiException {
+        ZappiBoostTimes boostTimes = apiClient.getZappiBoostTimes(serialNumber);
+        Iterator<ZappiBoostTimeSlot> iter = boostTimes.boostTimes.iterator();
+        while (iter.hasNext()) {
+            ZappiBoostTimeSlot slot = iter.next();
+            String channelGroupPrefix = ZAPPI_CHANNEL_GROUP_TIMED_BOOST_SLOT + (slot.slotId - 10) + "#";
+            String weekMap = slot.daysOfTheWeekMap;
+            int idx = 0;
+            for (byte c : weekMap.getBytes()) {
+                updateIntegerState(channelGroupPrefix + dayNames[idx], c - '0', false);
+            }
+            updateIntegerState(channelGroupPrefix + ZAPPI_CHANNEL_TIMED_BOOST_START_HOUR, slot.startHour, false);
+            updateIntegerState(channelGroupPrefix + ZAPPI_CHANNEL_TIMED_BOOST_START_MINUTE, slot.startMinute, false);
+            updateDoubleState(channelGroupPrefix + ZAPPI_CHANNEL_TIMED_BOOST_DURATION,
+                    slot.durationHour + ((double) slot.durationMinute) / 60);
+            updateIntegerState(channelGroupPrefix + ZAPPI_CHANNEL_TIMED_BOOST_CANCEL, 0, false);
         }
     }
 

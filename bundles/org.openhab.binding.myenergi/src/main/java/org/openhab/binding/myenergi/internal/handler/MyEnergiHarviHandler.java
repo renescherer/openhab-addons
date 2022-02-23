@@ -65,9 +65,9 @@ public class MyEnergiHarviHandler extends MyEnergiBaseDeviceHandler {
             updatePowerState(HARVI_CHANNEL_CLAMP_POWER_2, device.clampPower2, WATT);
             updatePowerState(HARVI_CHANNEL_CLAMP_POWER_3, device.clampPower3, WATT);
 
-            updateIntegerState(HARVI_CHANNEL_CLAMP_PHASE_1, device.clampPhase1);
-            updateIntegerState(HARVI_CHANNEL_CLAMP_PHASE_2, device.clampPhase2);
-            updateIntegerState(HARVI_CHANNEL_CLAMP_PHASE_3, device.clampPhase3);
+            updateIntegerState(HARVI_CHANNEL_CLAMP_PHASE_1, device.clampPhase1, false);
+            updateIntegerState(HARVI_CHANNEL_CLAMP_PHASE_2, device.clampPhase2, false);
+            updateIntegerState(HARVI_CHANNEL_CLAMP_PHASE_3, device.clampPhase3, false);
         } catch (RecordNotFoundException e) {
             logger.warn("Trying to update unknown device: {}", thing.getUID().getId());
         }

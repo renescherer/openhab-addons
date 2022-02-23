@@ -108,31 +108,19 @@ public class ZappiSummary extends BaseSummary {
     public Integer zs;
 
     // CT Clamps
-    @SerializedName("ectt1")
-    public String clampName1;
-    @SerializedName("ectt2")
-    public String clampName2;
-    @SerializedName("ectt3")
-    public String clampName3;
     @SerializedName("ectt4")
-    public String clampName4;
+    public String clampName1;
     @SerializedName("ectt5")
-    public String clampName5;
+    public String clampName2;
     @SerializedName("ectt6")
-    public String clampName6;
+    public String clampName3;
 
-    @SerializedName("ectp1")
-    public Integer clampPower1; // in Watts
-    @SerializedName("ectp2")
-    public Integer clampPower2;
-    @SerializedName("ectp3")
-    public Integer clampPower3;
     @SerializedName("ectp4")
-    public Integer clampPower4;
+    public Integer clampPower1; // in Watts
     @SerializedName("ectp5")
-    public Integer clampPower5;
+    public Integer clampPower2;
     @SerializedName("ectp6")
-    public Integer clampPower6;
+    public Integer clampPower3;
 
     public ZappiSummary(long serialNumber) {
         super(serialNumber);
@@ -149,10 +137,8 @@ public class ZappiSummary extends BaseSummary {
                 + ", chargeAdded=" + chargeAdded + ", smartBoostHour=" + smartBoostHour + ", smartBoostMinute="
                 + smartBoostMinute + ", smartBoostCharge=" + smartBoostCharge + ", timedBoostHour=" + timedBoostHour
                 + ", timedBoostMinute=" + timedBoostMinute + ", timedBoostCharge=" + manualBoostCharge + ", clampName1="
-                + clampName1 + ", clampName2=" + clampName2 + ", clampName3=" + clampName3 + ", clampName4="
-                + clampName4 + ", clampName5=" + clampName5 + ", clampName6=" + clampName6 + ", clampPower1="
-                + clampPower1 + ", clampPower2=" + clampPower2 + ", clampPower3=" + clampPower3 + ", clampPower4="
-                + clampPower4 + ", clampPower5=" + clampPower5 + ", clampPower6=" + clampPower6 + ", firmwareVersion="
+                + clampName1 + ", clampName2=" + clampName2 + ", clampName3=" + clampName3 + ", clampPower1="
+                + clampPower1 + ", clampPower2=" + clampPower2 + ", clampPower3=" + clampPower3 + ", firmwareVersion="
                 + firmwareVersion + "]";
     }
 
@@ -177,9 +163,6 @@ public class ZappiSummary extends BaseSummary {
         logger.info("clamp1={}, power={}", clampName1, clampPower1);
         logger.info("clamp2={}, power={}", clampName2, clampPower2);
         logger.info("clamp3={}, power={}", clampName3, clampPower3);
-        logger.info("clamp4={}, power={}", clampName4, clampPower4);
-        logger.info("clamp5={}, power={}", clampName5, clampPower5);
-        logger.info("clamp6={}, power={}", clampName6, clampPower6);
         logger.info("firmwareVersion={}", firmwareVersion);
     }
 }
