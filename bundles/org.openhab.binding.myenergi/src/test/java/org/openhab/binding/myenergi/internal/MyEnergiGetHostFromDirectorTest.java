@@ -38,7 +38,6 @@ class MyEnergiGetHostFromDirectorTest {
 
         @Override
         public HttpClient getCommonHttpClient() {
-            // TODO Auto-generated method stub
             return new HttpClient();
         }
     }
@@ -55,7 +54,6 @@ class MyEnergiGetHostFromDirectorTest {
         HttpClient client = new HttpClientFactoryForTest()
                 .createHttpClient(MyEnergiGetHostFromDirectorTest.class.getSimpleName());
         try {
-
             client.start();
             String hostName = new MyEnergiGetHostFromDirector().getHostName(client, "12215753");
             Assertions.assertTrue(hostName.contains("myenergi"));

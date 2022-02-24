@@ -316,7 +316,7 @@ public class MyEnergiApiClient {
     }
 
     private CommandStatus setZappiBoostMode(long serialNumber, ZappiBoostMode mode, int energyKiloWattHours,
-            @Nullable String departureTime) throws ApiException {
+            int endTimeHour, int endTimeMinute) throws ApiException {
         StringBuilder uriStr = new StringBuilder("/cgi-zappi-mode-Z");
         uriStr.append(serialNumber);
         uriStr.append('-');
@@ -325,12 +325,10 @@ public class MyEnergiApiClient {
         uriStr.append(mode.getIntValue());
         uriStr.append('-');
         uriStr.append(energyKiloWattHours);
-        if (departureTime == null) {
-            uriStr.append("-0000");
-        } else {
-            uriStr.append('-');
-            uriStr.append(departureTime);
-        }
+        uriStr.append('-');
+        uriStr.append(String.format("%02d", endTimeHour));
+        uriStr.append(String.format("%02d", endTimeMinute));
+
         String response = executeApiCall(uriStr.toString());
         try {
             CommandStatus status = MyEnergiBindingConstants.GSON.fromJson(response, CommandStatus.class);
@@ -345,12 +343,12 @@ public class MyEnergiApiClient {
     }
 
     public CommandStatus setZappiManualBoost(Long serialNumber, int energyKiloWattHours) throws ApiException {
-        return setZappiBoostMode(serialNumber, ZappiBoostMode.MANUAL, energyKiloWattHours, null);
+        return setZappiBoostMode(serialNumber, ZappiBoostMode.MANUAL, energyKiloWattHours, 0, 0);
     }
 
-    public CommandStatus setZappiSmartBoost(Long serialNumber, int energyKiloWattHours, String departureTime)
-            throws ApiException {
-        return setZappiBoostMode(serialNumber, ZappiBoostMode.SMART, energyKiloWattHours, departureTime);
+    public CommandStatus setZappiSmartBoost(Long serialNumber, int energyKiloWattHours, int endTimeHour,
+            int endTimeMinute) throws ApiException {
+        return setZappiBoostMode(serialNumber, ZappiBoostMode.SMART, energyKiloWattHours, endTimeHour, endTimeMinute);
     }
 
     private String executeApiCall(String path) throws ApiException {

@@ -74,6 +74,9 @@ public class MyEnergiBindingConstants {
     public static final String ZAPPI_CHANNEL_SMART_BOOST_CHARGE = "smartBoost#smartBoostCharge";
     public static final String ZAPPI_CHANNEL_SMART_BOOST_STATUS = "smartBoost#boostStatus";
     public static final String ZAPPI_CHANNEL_SMART_BOOST_STOPALL = "smartBoost#stopAll";
+    public static final String ZAPPI_CHANNEL_NEW_SMART_BOOST_CHARGE = "smartBoost#newSmartBoostCharge";
+    public static final String ZAPPI_CHANNEL_NEW_SMART_BOOST_END_TIME_HOUR = "smartBoost#newEndTimeHour";
+    public static final String ZAPPI_CHANNEL_NEW_SMART_BOOST_END_TIME_MINUTE = "smartBoost#newEndTimeMinute";
 
     public static final String ZAPPI_CHANNEL_MANUAL_BOOST_STATUS = "manualBoost#boostStatus";
     public static final String ZAPPI_CHANNEL_MANUAL_BOOST_CHARGE = "manualBoost#manualBoostCharge";

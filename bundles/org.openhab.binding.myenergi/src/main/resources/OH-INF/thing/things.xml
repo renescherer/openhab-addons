@@ -76,6 +76,7 @@
 
 		<label>Zappi</label>
 		<description>MyEnergi Zappi</description>
+		<category>PowerOutlet</category>
 		<channel-groups>
 			<channel-group id="device" typeId="deviceGroupType"/>
 			<channel-group id="clamp" typeId="clampGroupType"/>
@@ -172,24 +173,40 @@
 		<label>Manual Boost</label>
 		<channels>
 			<channel id="boostStatus" typeId="boostStatusType"/>
-			<channel id="manualBoostCharge" typeId="ChargeType">
+			<channel id="manualBoostCharge" typeId="chargeType">
 				<label>Manual Boost Charge</label>
 			</channel>
-			 <channel id="newManualBoostCharge" typeId="ChargeType">
-                <label>New Manual Boost Charge. It will be used, when a new manual boost starts</label>
-            </channel>
-        <channel id="stopAll" typeId="stopAllType"/>
+			<channel id="newManualBoostCharge" typeId="chargeTypeWriteable">
+				<label>New Manual Boost Charge</label>
+			</channel>
+			<channel id="stopAll" typeId="stopAllType"/>
 		</channels>
 	</channel-group-type>
 	<channel-group-type id="smartBoostGroupType">
 		<label>Smart Boost Slot</label>
 		<channels>
 			<channel id="boostStatus" typeId="boostStatusType"/>
-			<channel id="endTimeHour" typeId="endTimeHourType"/>
-			<channel id="endTimeMinute" typeId="endTimeMinuteType"/>
-			<channel id="smartBoostCharge" typeId="smartBoostChargeType">
-				<label>Smart Boost Charge Type</label>
+			<channel id="endTimeHour" typeId="timeTypeReadonly">
+				<label>Previous Ending Time (Hour)</label>
 			</channel>
+			<channel id="endTimeMinute" typeId="timeTypeReadonly">
+				<label>Previous Ending Time (Minute)</label>
+			</channel>
+			<channel id="smartBoostCharge" typeId="chargeType">
+				<label>Previous Energy to Charge</label>
+				<description>Energy configured for the previous smart boost.</description>
+			</channel>
+			<channel id="newSmartBoostCharge" typeId="chargeTypeWriteable">
+				<label>Next Energy to Charge</label>
+				<description>Energy configured for the next smart boost.</description>
+			</channel>
+			<channel id="newEndTimeHour" typeId="hourTypeWritable">
+				<label>Next Ending Time (Hour)</label>
+			</channel>
+			<channel id="newEndTimeMinute" typeId="minuteTypeWritable">
+				<label>Next Ending Time (Minute)</label>
+			</channel>
+
 			<channel id="stopAll" typeId="stopAllType"/>
 		</channels>
 	</channel-group-type>
@@ -199,7 +216,6 @@
 		<description>All channels for one related Timed Boost Slot</description>
 		<channels>
 
-			<channel id="slot" typeId="slotType"/>
 			<channel id="monday" typeId="DayOfWeekType">
 				<label>Monday</label>
 			</channel>
@@ -221,8 +237,12 @@
 			<channel id="sunday" typeId="DayOfWeekType">
 				<label>Sunday</label>
 			</channel>
-			<channel id="startHour" typeId="startHourType"/>
-			<channel id="startMinute" typeId="startMinuteType"/>
+			<channel id="startHour" typeId="hourTypeWritable">
+				<label>Start Hour</label>
+			</channel>
+			<channel id="startMinute" typeId="minuteTypeWritable">
+				<label>Start Minute</label>
+			</channel>
 			<channel id="duration" typeId="durationType"/>
 			<channel id="cancel" typeId="cancelType"/>
 		</channels>
@@ -329,7 +349,13 @@
 		<description>Energy supplied to the EV during current charge session</description>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
-
+	<channel-type id="chargeTypeWriteable">
+		<item-type>Dimmer</item-type>
+		<label>Charge</label>
+		<description>Energy supplied to the EV during current charge session</description>
+		<state min="0" max="100" step="1" readOnly="false"/>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
+	</channel-type>
 	<channel-type id="lockingModeType">
 		<item-type>Number</item-type>
 		<label>Locking Mode</label>
@@ -417,41 +443,34 @@
 		<description>The time when the boost process should finish (HH:MM)</description>
 		<state readOnly="false" pattern="%s"/>
 	</channel-type>
-	<channel-type id="slotType">
-		<item-type>Number</item-type>
-		<label>Slot Number</label>
-		<description>Identification for the slot</description>
-		<state readOnly="true" pattern="%d"/>
-	</channel-type>
 	<channel-type id="DayOfWeekType">
 		<item-type>Switch</item-type>
 		<label>Day</label>
 		<state readOnly="false"/>
 	</channel-type>
-	<channel-type id="startHourType">
+	<channel-type id="timeTypeReadonly">
 		<item-type>Number</item-type>
-		<label>Start Time (Hour)</label>
+		<label>Time</label>
 		<state readOnly="false" pattern="%d"/>
 	</channel-type>
-	<channel-type id="startMinuteType">
-		<item-type>Number</item-type>
-		<label>Start Time (Minute)</label>
-		<state readOnly="false" pattern="%d"/>
+	<channel-type id="hourTypeWritable">
+		<item-type>Dimmer</item-type>
+		<label>Time</label>
+		<state min="0" max="24" step="1" pattern="%d"/>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
-	<channel-type id="endTimeHourType">
-		<item-type>Number</item-type>
-		<label>End Time (Hour)</label>
-		<state readOnly="false" pattern="%d"/>
-	</channel-type>
-	<channel-type id="endTimeMinuteType">
-		<item-type>Number</item-type>
-		<label>End Time (Minute)</label>
-		<state readOnly="false" pattern="%d"/>
+	<channel-type id="minuteTypeWritable">
+		<item-type>Dimmer</item-type>
+		<label>Time</label>
+		<state min="0" max="60" step="1" pattern="%d"/>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 	<channel-type id="durationType">
-		<item-type>Number</item-type>
-		<label>Duration in Hours (E.g. 1.5)</label>
-		<state readOnly="false" pattern="%f"/>
+		<item-type>Dimmer</item-type>
+		<label>Duration in Hours</label>
+		<description>E.g. 1.5. Maximum duration is 12h</description>
+		<state min="0" max="10" step="0.25"/>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 	<channel-type id="stopAllType">
 		<item-type>Switch</item-type>

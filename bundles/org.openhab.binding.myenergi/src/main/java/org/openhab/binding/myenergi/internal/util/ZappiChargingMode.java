@@ -19,7 +19,7 @@ import org.openhab.binding.myenergi.internal.exception.ApiException;
  * The {@link ZappiChargingMode} enumeration is used to model the various Zappi charging modes.
  *
  * @author Rene Scherer - Initial contribution
- *
+ * @author Volkmar Nissen - added charging mode stop and fromInteger method
  */
 @NonNullByDefault
 public enum ZappiChargingMode {
@@ -39,7 +39,7 @@ public enum ZappiChargingMode {
         return intValue;
     }
 
-    static public ZappiChargingMode fromInteger(final int intValue) throws ApiException {
+    public static ZappiChargingMode fromInteger(final int intValue) throws ApiException {
         for (ZappiChargingMode m : ZappiChargingMode.values()) {
             if (m.getIntValue() == intValue) {
                 return m;

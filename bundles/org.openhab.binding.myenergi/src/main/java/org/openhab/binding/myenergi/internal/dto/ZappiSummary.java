@@ -22,6 +22,7 @@ import com.google.gson.annotations.SerializedName;
  * deserialize JSON API results.
  *
  * @author Rene Scherer - Initial contribution
+ * @author Volkmar Nissen - Update due to changes of the zaopi API
  *
  */
 public class ZappiSummary extends BaseSummary {
@@ -33,7 +34,6 @@ public class ZappiSummary extends BaseSummary {
     // new Feb 2022:
     // "bsm" Boost 1 = manual Boost
     // "bst" Boost time 0 ???
-    // "bss" 0 ???
     // "tz" 0 ???
     // "zs" 0 ???
     // Removed in Feb 22
@@ -81,12 +81,20 @@ public class ZappiSummary extends BaseSummary {
     public Integer smartBoostMinute;
     @SerializedName("sbk")
     public Double smartBoostCharge;
+    @SerializedName("bss")
+    public int smartBoost;
+
+    public boolean getSmartBoost() {
+        return (smartBoost != 0);
+    }
 
     // Timed Boost Removed Feb 22
     @SerializedName("tbh")
     public Integer timedBoostHour;
     @SerializedName("tbm")
     public Integer timedBoostMinute;
+
+    // tbk is only not null during manual boost
     @SerializedName("tbk")
     public Double manualBoostCharge; // planned boost Energy for manual boost - Note charge remaining for boost =
                                      // tbk-che
@@ -100,8 +108,7 @@ public class ZappiSummary extends BaseSummary {
 
     @SerializedName("bst")
     public Integer bst;
-    @SerializedName("bss")
-    public Integer bss;
+
     @SerializedName("tz")
     public Integer tz;
     @SerializedName("zs")

@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class MyEnergiGetHostFromDirector {
-    private static final int SLEEP_BEFORE_REINIT_MS = 3000;
     public static final String MY_ENERGI_RESPONSE_FIELD = "X_MYENERGI-asn";
 
     private final Logger logger = LoggerFactory.getLogger(MyEnergiGetHostFromDirector.class);
