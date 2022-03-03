@@ -35,6 +35,7 @@ import org.openhab.core.config.core.status.ConfigStatusCallback;
 import org.openhab.core.config.core.status.ConfigStatusSource;
 import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.PercentType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.ChannelUID;
@@ -195,6 +196,10 @@ public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler impleme
         if (value != null) {
             updateState(channelId, new DecimalType(value));
         }
+    }
+
+    protected void updatePercentState(final String channelId, int value) {
+        updateState(channelId, new PercentType(value));
     }
 
     protected void updateDateTimeState(final String channelId, @Nullable ZonedDateTime value) {

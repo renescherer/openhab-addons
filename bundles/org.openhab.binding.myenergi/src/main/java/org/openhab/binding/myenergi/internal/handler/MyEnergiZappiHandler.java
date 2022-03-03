@@ -24,13 +24,16 @@ import java.util.Iterator;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.myenergi.internal.MyEnergiApiClient;
+import org.openhab.binding.myenergi.internal.dto.DaysOfWeekMap;
 import org.openhab.binding.myenergi.internal.dto.ZappiBoostTimeSlot;
 import org.openhab.binding.myenergi.internal.dto.ZappiBoostTimes;
 import org.openhab.binding.myenergi.internal.dto.ZappiSummary;
 import org.openhab.binding.myenergi.internal.exception.ApiException;
+import org.openhab.binding.myenergi.internal.exception.InvalidDataException;
 import org.openhab.binding.myenergi.internal.exception.RecordNotFoundException;
 import org.openhab.binding.myenergi.internal.util.ZappiChargingMode;
-import org.openhab.core.thing.Channel;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.PercentType;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.binding.ThingHandlerService;
@@ -82,7 +85,14 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
                                     ZappiChargingMode.fromInteger(Integer.parseInt(command.toString())));
                             break;
                         case ZAPPI_CHANNEL_MINIMUM_GREEN_LEVEL:
-                            apiClient.setZappiMinimumGreenLevel(serialNumber, Integer.parseInt(command.toString()));
+                            int newValue = Integer.parseInt(command.toString());
+                            if (command instanceof DecimalType) {
+                                double val = Double.parseDouble(command.toString());
+                                if (val < 1) {
+                                    newValue = (int) (val * 100);
+                                }
+                            }
+                            apiClient.setZappiMinimumGreenLevel(serialNumber, newValue);
                             break;
                         case ZAPPI_CHANNEL_NEW_MANUAL_BOOST_CHARGE:
                             if (!command.toString().equals("ON") && !command.toString().equals("OFF")) {
@@ -113,22 +123,30 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
                     }
                 }
             }
-        } catch (NumberFormatException | ApiException e) {
-            logger.error("unable to execute command channel:{} command{}: serialNumber: {} message: {}",
-                    channelUID.getId(), command.toString(), serialNumber, e.getMessage());
+        } catch (NumberFormatException | ApiException | InvalidDataException e) {
+            logger.error("unable to execute command channel:{} command{}: serialNumber: {} message: {} {}",
+                    channelUID.getId(), command.toString(), serialNumber, e.getClass().getName(), e.getMessage());
         }
     }
 
-    private void handleCommandStartTimedBoost(ChannelUID channelUID, Command command) throws ApiException {
+    private void handleCommandStartTimedBoost(ChannelUID channelUID, Command command)
+            throws ApiException, InvalidDataException {
         int slotIndex = channelUID.getId().indexOf('#') - 1;
         char slot = (char) (channelUID.getId().charAt(slotIndex) - '0');
         // String channelPrefix = ZAPPI_CHANNEL_GROUP_TIMED_BOOST_SLOT + Character.toString(slot) + "#";
-        String channel = channelUID.getId().substring(slotIndex + 1);
+        String channel = channelUID.getId().substring(slotIndex + 2);
         ZappiBoostTimes boostTimes = apiClient.getZappiBoostTimes(serialNumber);
         Iterator<ZappiBoostTimeSlot> iter = boostTimes.boostTimes.iterator();
         while (iter.hasNext()) {
             ZappiBoostTimeSlot s = iter.next();
-            if (s.slotId == slot - '0' + 10) {
+            // If the slot is empty, add minimal default values. Otherwise, it is not possible to change value by value
+            if (s.durationHour == 0 && s.durationMinute == 0 && s.daysOfTheWeekMap.equals("00000000")) {
+                DaysOfWeekMap dm = new DaysOfWeekMap();
+                dm.setMap("00000001");
+                s = new ZappiBoostTimeSlot(s.slotId, 0, 0, 0, 15, dm);
+            }
+
+            if (s.slotId == slot + 10) {
                 switch (channel) {
                     case ZAPPI_CHANNEL_TIMED_BOOST_MONDAY:
                     case ZAPPI_CHANNEL_TIMED_BOOST_TUESDAY:
@@ -168,8 +186,21 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
                         }
                         break;
                     case ZAPPI_CHANNEL_TIMED_BOOST_DURATION:
-                        s.durationHour = Integer.parseInt(command.toString());
-                        s.durationMinute = (int) ((Double.parseDouble(command.toString()) % 1) * 60);
+                        if (command instanceof PercentType) {
+                            s.durationHour = (int) Double.parseDouble(command.toString()) / 10;
+                            s.durationMinute = (int) (Double.parseDouble(command.toString()) % 10) * 6;
+                            logger.info("handleCommandStartTimedBoost Percent{} {} {} ", command.toString(),
+                                    s.durationHour, s.durationMinute);
+
+                        }
+                        if (command instanceof DecimalType) {
+                            s.durationHour = (int) Double.parseDouble(command.toString());
+                            s.durationMinute = (int) ((Double.parseDouble(command.toString()) % 1) * 60);
+                            logger.info("handleCommandStartTimedBoost Decimal{} {} {} ", command.toString(),
+                                    s.durationHour, s.durationMinute);
+
+                        }
+
                         break;
                     case ZAPPI_CHANNEL_TIMED_BOOST_CANCEL:
                         s.daysOfTheWeekMap = "";
@@ -203,7 +234,7 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
 
             updateIntegerState(ZAPPI_CHANNEL_COMMAND_TRIES, device.commandTries, false);
             updateIntegerState(ZAPPI_CHANNEL_DIVERTER_PRIORITY, device.diverterPriority, false);
-            updateIntegerState(ZAPPI_CHANNEL_MINIMUM_GREEN_LEVEL, device.minimumGreenLevel, false);
+            updatePercentState(ZAPPI_CHANNEL_MINIMUM_GREEN_LEVEL, device.minimumGreenLevel);
 
             updateElectricPotentialState(ZAPPI_CHANNEL_SUPPLY_VOLTAGE, device.supplyVoltageInTenthVolt / 10.0f, VOLT);
             updateFrequencyState(ZAPPI_CHANNEL_SUPPLY_FREQUENCY, device.supplyFrequency, HERTZ);
@@ -221,18 +252,18 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
             if (newSmartBoostEndTimeHour == 0 && null != device.smartBoostHour) {
                 newSmartBoostEndTimeHour = device.smartBoostHour;
             }
-            updateDimmerState(ZAPPI_CHANNEL_NEW_SMART_BOOST_END_TIME_HOUR, newSmartBoostEndTimeHour, 0, 24);
+            updateIntegerState(ZAPPI_CHANNEL_NEW_SMART_BOOST_END_TIME_HOUR, newSmartBoostEndTimeHour, false);
             updateIntegerState(ZAPPI_CHANNEL_SMART_BOOST_END_TIME_MINUTE, device.smartBoostMinute, false);
             if (newSmartBoostEndTimeMinute == 0 && null != device.smartBoostMinute) {
                 newSmartBoostEndTimeMinute = device.smartBoostMinute;
             }
-            updateDimmerState(ZAPPI_CHANNEL_NEW_SMART_BOOST_END_TIME_MINUTE, newSmartBoostEndTimeMinute, 0, 60);
+            updateIntegerState(ZAPPI_CHANNEL_NEW_SMART_BOOST_END_TIME_MINUTE, newSmartBoostEndTimeMinute, false);
             updateEnergyState(ZAPPI_CHANNEL_SMART_BOOST_CHARGE, device.smartBoostCharge, KILOWATT_HOUR);
             if (newSmartBoostCharge == 0 && null != device.smartBoostCharge) {
                 newSmartBoostCharge = device.smartBoostCharge;
             }
 
-            updateDimmerState(ZAPPI_CHANNEL_NEW_SMART_BOOST_CHARGE, newSmartBoostCharge, 0, 100);
+            updateEnergyState(ZAPPI_CHANNEL_NEW_SMART_BOOST_CHARGE, newSmartBoostCharge, KILOWATT_HOUR);
 
             updateIntegerState(ZAPPI_CHANNEL_SMART_BOOST_STATUS, device.getSmartBoost() ? 1 : 0, false);
 
@@ -243,7 +274,7 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
             if (newManualBoostCharge == 0 && null != device.manualBoostCharge) {
                 newManualBoostCharge = device.manualBoostCharge;
             }
-            updateDimmerState(ZAPPI_CHANNEL_NEW_MANUAL_BOOST_CHARGE, newManualBoostCharge, 0, 100);
+            updateEnergyState(ZAPPI_CHANNEL_NEW_MANUAL_BOOST_CHARGE, newManualBoostCharge, KILOWATT_HOUR);
             updateIntegerState(ZAPPI_CHANNEL_MANUAL_BOOST_STOPALL, 0, false);
             // clamp group ===============================================
             updateStringState(ZAPPI_CHANNEL_CLAMP_NAME_1, device.clampName1);
@@ -255,25 +286,12 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
             updatePowerState(ZAPPI_CHANNEL_CLAMP_POWER_3, device.clampPower3, WATT);
             updateBoostTimeSlots();
 
-        } catch (RecordNotFoundException | ApiException e) {
-            logger.debug("Trying to update unknown device: {}", thing.getUID().getId());
+        } catch (RecordNotFoundException | ApiException | InvalidDataException e) {
+            logger.debug("Error updating device: {} message: {}", thing.getUID().getId(), e.getMessage());
         }
     }
 
-    private void updateDimmerState(String channelId, double value, double minValue, double maxValue) {
-        Channel c = this.thing.getChannel(channelId);
-        // "Bug" in Dimmer. It want's percentage when updating the state, however, it delivers the value in commands
-        if (c != null) {
-            String itemType = c.getAcceptedItemType();
-            if (itemType != null && "Dimmer".equals(itemType)) {
-                updateDoubleState(channelId, newSmartBoostCharge / (maxValue - minValue));
-            } else {
-                updateDoubleState(channelId, newSmartBoostCharge);
-            }
-        }
-    }
-
-    private void updateBoostTimeSlots() throws ApiException {
+    private void updateBoostTimeSlots() throws ApiException, InvalidDataException {
         ZappiBoostTimes boostTimes = apiClient.getZappiBoostTimes(serialNumber);
         Iterator<ZappiBoostTimeSlot> iter = boostTimes.boostTimes.iterator();
         while (iter.hasNext()) {
@@ -291,8 +309,10 @@ public class MyEnergiZappiHandler extends MyEnergiBaseDeviceHandler {
             }
             updateIntegerState(channelGroupPrefix + ZAPPI_CHANNEL_TIMED_BOOST_START_HOUR, slot.startHour, false);
             updateIntegerState(channelGroupPrefix + ZAPPI_CHANNEL_TIMED_BOOST_START_MINUTE, slot.startMinute, false);
-            updateDimmerState(channelGroupPrefix + ZAPPI_CHANNEL_TIMED_BOOST_DURATION,
-                    slot.durationHour + ((double) slot.durationMinute) / 60, 0, 10);
+            updateDoubleState(channelGroupPrefix + ZAPPI_CHANNEL_TIMED_BOOST_DURATION,
+                    slot.durationHour + ((double) slot.durationMinute) / 60);
+            logger.debug("updateBoostTimeSlots {} {} ", slot.durationHour + ((double) slot.durationMinute) / 60,
+                    slot.startHour);
             updateIntegerState(channelGroupPrefix + ZAPPI_CHANNEL_TIMED_BOOST_CANCEL, 0, false);
         }
     }

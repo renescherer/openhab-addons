@@ -300,15 +300,21 @@ public class MyEnergiApiClient {
             slot.durationHour = 8;
             slot.durationMinute = 0;
         }
-        String uri = String.format("/cgi-boost-time-Z%s-%d-%02d%02d-%1d%02d-%s", zappiSerialNumber, slot.slotId,
+        if (slot.startHour == 24 && slot.startMinute > 0) {
+            slot.startMinute = 0;
+        }
+        String uri = String.format("/cgi-boost-time-Z%s-%d-%02d%02d-%d%02d-%s", zappiSerialNumber, slot.slotId,
                 slot.startHour, slot.startMinute, slot.durationHour, slot.durationMinute, slot.daysOfTheWeekMap);
         String response = executeApiCall(uri);
         try {
             ZappiBoostTimes result = MyEnergiBindingConstants.GSON.fromJson(response, ZappiBoostTimes.class);
-            if (result != null) {
+            if (result != null && result.boostTimes.size() > 0) {
                 return result;
             } else {
-                throw new ApiException("Unexpected JSON response: " + response);
+                CommandStatus status = MyEnergiBindingConstants.GSON.fromJson(response, CommandStatus.class);
+
+                throw new ApiException(
+                        "Unexpected JSON response: " + response + "Status: " + status.status + "\nURI: " + uri);
             }
         } catch (JsonSyntaxException e) {
             throw new ApiException("Unable to deserialize JSON response: " + response, e);
