@@ -45,6 +45,7 @@ The following channels are defined.
 none
 
 ####  Zappi
+
 The Zappi channels are divided into  some channel groups.
 
 |Group| Description|
@@ -108,6 +109,7 @@ The Zappi channels are divided into  some channel groups.
 | duration|Number|Duration in Hours<br>E.g. 1.5. Maximum duration is 10h||
 
 ##### Zappi Items
+
 The read only items don't need to be changed when importing the channels from the thing.
 The writable number items must be changed as follows:
 

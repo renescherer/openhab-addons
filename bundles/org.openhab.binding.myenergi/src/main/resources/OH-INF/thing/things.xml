@@ -211,7 +211,7 @@
 		</channels>
 	</channel-group-type>
 
-	<channel-group-type id="timedBoostSlotGroupType" >
+	<channel-group-type id="timedBoostSlotGroupType">
 		<label>Timed Boost Slot</label>
 		<description>All channels for one related Timed Boost Slot</description>
 		<channels>
@@ -246,7 +246,7 @@
 			<channel id="duration" typeId="durationType"/>
 		</channels>
 	</channel-group-type>
-	<channel-group-type id="clampGroupType" >
+	<channel-group-type id="clampGroupType">
 		<label>CT</label>
 		<channels>
 			<channel id="clampName1" typeId="CTType">
@@ -277,7 +277,7 @@
 		<state readOnly="true" pattern="%1$tF %1$tR"/>
 	</channel-type>
 
-	<channel-type id="CTType" >
+	<channel-type id="CTType">
 		<item-type>String</item-type>
 		<label>CT Type(Usage)</label>
 		<state readOnly="true" pattern="%s">
@@ -350,17 +350,18 @@
 		<item-type>Number:Energy</item-type>
 		<label>Charge</label>
 		<description>Energy to be supplied to the EV in the next charge session</description>
-		<state min="0" max="100" step="1" readOnly="false" pattern="%.1f %unit%"  />
+		<state min="0" max="100" step="1" readOnly="false" pattern="%.1f %unit%"/>
 	</channel-type>
 	<channel-type id="lockingModeType">
 		<item-type>Number</item-type>
 		<label>Locking Mode</label>
 		<description>The current locking mode of the device as bitmap.
-Bit 0: Locked Now, 
-Bit 1: Lock when plugged in, 
-Bit 2: Lock when unplugged, 
-Bit 3: Charge when locked, 
-Bit 4: Charge Session Allowed (Even if locked)</description>
+			Bit 0: Locked Now,
+			Bit 1: Lock when plugged in,
+			Bit 2:
+			Lock when unplugged,
+			Bit 3: Charge when locked,
+			Bit 4: Charge Session Allowed (Even if locked)</description>
 		<state readOnly="true" pattern="%d"/>
 	</channel-type>
 
@@ -429,9 +430,9 @@ Bit 4: Charge Session Allowed (Even if locked)</description>
 		<item-type>Number</item-type>
 		<label>Minimum Green Level</label>
 		<description>The minimum percentage of green energy to allow charging</description>
-		<state readOnly="false" pattern="%d %%" />
-	    <autoUpdatePolicy>recommend</autoUpdatePolicy>
-    </channel-type>
+		<state readOnly="false" pattern="%d %%"/>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
+	</channel-type>
 	<channel-type id="boostStatusType">
 		<item-type>Switch</item-type>
 		<label>Boost Status</label>
@@ -469,12 +470,11 @@ Bit 4: Charge Session Allowed (Even if locked)</description>
 		<label>Duration in Hours</label>
 		<description>E.g. 1.5. Maximum duration is 10h</description>
 		<state min="0" max="10" step="0.25" pattern="%d"/>
-        <autoUpdatePolicy>recommend</autoUpdatePolicy>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 	<channel-type id="stopAllType">
 		<item-type>Switch</item-type>
 		<label>Stop all Boosts</label>
 		<state readOnly="false"/>
 	</channel-type>
-
 </thing:thing-descriptions>
