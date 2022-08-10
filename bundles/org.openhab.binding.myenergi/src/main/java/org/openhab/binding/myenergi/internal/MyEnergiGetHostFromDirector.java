@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2022 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class MyEnergiGetHostFromDirector {
-    private static final int SLEEP_BEFORE_REINIT_MS = 3000;
     public static final String MY_ENERGI_RESPONSE_FIELD = "X_MYENERGI-asn";
 
     private final Logger logger = LoggerFactory.getLogger(MyEnergiGetHostFromDirector.class);

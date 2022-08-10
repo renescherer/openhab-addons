@@ -86,12 +86,12 @@
 			<channel id="smartBoostCharge" typeId="chargeType"/>
 			<channel id="timedBoostTime" typeId="boostEndTimeType"/>
 			<channel id="timedBoostCharge" typeId="chargeType"/>
-			<channel id="clampName4" typeId="CTTypeL1"/>
-			<channel id="clampName5" typeId="CTTypeL2"/>
-			<channel id="clampName6" typeId="CTTypeL3"/>
-		    <channel id="clampPower4" typeId="clampPowerType"/>
-			<channel id="clampPower5" typeId="clampPowerType"/>
-			<channel id="clampPower6" typeId="clampPowerType"/>
+			<channel id="clampName4" typeId="CTType"/>
+			<channel id="clampName5" typeId="CTType"/>
+			<channel id="clampName6" typeId="CTType"/>
+			<channel id="clampPower4" typeId="clampPowerTypeL4"/>
+			<channel id="clampPower5" typeId="clampPowerTypeL5"/>
+			<channel id="clampPower6" typeId="clampPowerTypeL6"/>
 		</channels>
 
 		<properties>
@@ -175,20 +175,41 @@
 		<category>Energy</category>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
-    <channel-type id="clampPowerTypeL2">
-        <item-type>Number:Power</item-type>
-        <label>Clamp Power</label>
-        <description>The measured power at the  CT L2</description>
-        <category>Energy</category>
-        <state readOnly="true" pattern="%.1f %unit%"/>
-    </channel-type>
-    <channel-type id="clampPowerTypeL3">
-        <item-type>Number:Power</item-type>
-        <label>Clamp Power</label>
-        <description>The measured power at the  CT L3</description>
-        <category>Energy</category>
-        <state readOnly="true" pattern="%.1f %unit%"/>
-    </channel-type>
+	<channel-type id="clampPowerTypeL2">
+		<item-type>Number:Power</item-type>
+		<label>Clamp Power</label>
+		<description>The measured power at the CT L2</description>
+		<category>Energy</category>
+		<state readOnly="true" pattern="%.1f %unit%"/>
+	</channel-type>
+	<channel-type id="clampPowerTypeL3">
+		<item-type>Number:Power</item-type>
+		<label>Clamp Power</label>
+		<description>The measured power at the CT L3</description>
+		<category>Energy</category>
+		<state readOnly="true" pattern="%.1f %unit%"/>
+	</channel-type>
+	<channel-type id="clampPowerTypeL4">
+		<item-type>Number:Power</item-type>
+		<label>Clamp Power</label>
+		<description>The measured power at the CT L4</description>
+		<category>Energy</category>
+		<state readOnly="true" pattern="%.1f %unit%"/>
+	</channel-type>
+	<channel-type id="clampPowerTypeL5">
+		<item-type>Number:Power</item-type>
+		<label>Clamp Power</label>
+		<description>The measured power at the CT L5</description>
+		<category>Energy</category>
+		<state readOnly="true" pattern="%.1f %unit%"/>
+	</channel-type>
+	<channel-type id="clampPowerTypeL6">
+		<item-type>Number:Power</item-type>
+		<label>Clamp Power</label>
+		<description>The measured power at the CT L6</description>
+		<category>Energy</category>
+		<state readOnly="true" pattern="%.1f %unit%"/>
+	</channel-type>
 
 	<channel-type id="phaseType">
 		<item-type>Number</item-type>
@@ -231,7 +252,8 @@
 	<channel-type id="lockingModeType">
 		<item-type>Number</item-type>
 		<label>Locking Mode</label>
-		<description>The current locking mode of the device as bitmap.Bit 0: Locked Now, Bit 1: Lock when plugged in, Bit 2: Lock when unplugged, Bit 3: Charge when locked, Bit 4: Charge Session Allowed (Even if locked)</description>
+		<description>The current locking mode of the device as bitmap.Bit 0: Locked Now, Bit 1: Lock when plugged in, Bit 2:
+			Lock when unplugged, Bit 3: Charge when locked, Bit 4: Charge Session Allowed (Even if locked)</description>
 		<state readOnly="true" pattern="%d"/>
 	</channel-type>
 

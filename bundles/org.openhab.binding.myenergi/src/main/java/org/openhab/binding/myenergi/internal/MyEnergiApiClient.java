@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2022 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -362,7 +362,7 @@ public class MyEnergiApiClient {
                             request.header(HttpHeader.CONTENT_TYPE, "application/json; utf-8");
                             request.header(HttpHeader.USER_AGENT, API_USER_AGENT);
 
-                            logger.info("sending API request attempt# {}: {}", innerLoop, url.toString());
+                            logger.debug("sending API request attempt# {}: {}", innerLoop, url.toString());
 
                             ContentResponse response = request.send();
                             lastResponseStatus = response.getStatus();
@@ -376,7 +376,7 @@ public class MyEnergiApiClient {
                             if ((lastResponseStatus == HttpURLConnection.HTTP_OK)
                                     || (lastResponseStatus == HttpURLConnection.HTTP_CREATED)) {
                                 String apiResponse = response.getContentAsString();
-                                logger.info("Api response: {}", apiResponse);
+                                logger.debug("Api response: {}", apiResponse);
                                 return apiResponse;
                             } else {
                                 if (lastResponseStatus == HttpURLConnection.HTTP_UNAUTHORIZED) {
