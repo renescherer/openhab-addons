@@ -4,9 +4,9 @@ This binding allows openHAB to communicate with the public API from myenergi Ltd
 
 - Retrieval of current energy readings (grid, solar, EV charger)
 - Control Zappi charging status and boost modes for Zappi
-- Control of Eddi boost
+- Control of Eddi manual boost
 
-this binding has been tested with a Harvi, a Zappi AND AN eDDI.
+This binding has been tested with a Harvi, a Zappi and an Eddi.
 
 ## Supported Things
 
