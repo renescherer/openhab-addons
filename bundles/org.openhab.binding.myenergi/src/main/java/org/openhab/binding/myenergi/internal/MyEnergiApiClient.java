@@ -35,6 +35,7 @@ import org.eclipse.jetty.http.HttpMethod;
 import org.openhab.binding.myenergi.internal.dto.CommandStatus;
 import org.openhab.binding.myenergi.internal.dto.DeviceSummary;
 import org.openhab.binding.myenergi.internal.dto.DeviceSummaryList;
+import org.openhab.binding.myenergi.internal.dto.EddiSummary;
 import org.openhab.binding.myenergi.internal.dto.HarviSummary;
 import org.openhab.binding.myenergi.internal.dto.MyEnergiData;
 import org.openhab.binding.myenergi.internal.dto.ZappiBoostTimeSlot;
@@ -58,6 +59,7 @@ import com.google.gson.JsonSyntaxException;
  * all JSON API calls. If an API call fails it automatically refreshes the authentication token and retries.
  *
  * @author Rene Scherer - Initial contribution
+ * @author Stephen Cook - Eddi Support
  */
 @NonNullByDefault
 public class MyEnergiApiClient {
@@ -204,6 +206,24 @@ public class MyEnergiApiClient {
         }
     }
 
+    public synchronized EddiSummary updateEddiSummary(long serialNumber) throws ApiException, RecordNotFoundException {
+        String response = executeApiCall("/cgi-jstatus-E" + serialNumber);
+        try {
+            DeviceSummary ds = MyEnergiBindingConstants.GSON.fromJson(response, DeviceSummary.class);
+            if (ds == null) {
+                throw new ApiException("Unexpected JSON response: " + response);
+            } else if (ds.eddis.isEmpty()) {
+                throw new RecordNotFoundException("No Eddi with serial number: " + serialNumber);
+            } else {
+                EddiSummary sum = ds.eddis.get(0);
+                data.updateEddi(sum);
+                return sum;
+            }
+        } catch (JsonSyntaxException e) {
+            throw new ApiException("Unable to deserialize JSON response: " + response, e);
+        }
+    }
+
     public DeviceSummaryList getDeviceSummaryList() throws ApiException {
         String response = executeApiCall("/cgi-jstatus-*");
         try {
@@ -213,6 +233,63 @@ public class MyEnergiApiClient {
                 return summaryList;
             } else {
                 return new DeviceSummaryList();
+            }
+        } catch (JsonSyntaxException e) {
+            throw new ApiException("Unable to deserialize JSON response: " + response, e);
+        }
+    }
+
+    public CommandStatus setEddiBoost(long eddiSerialNumber, int heater, int duration) throws ApiException {
+        String response = executeApiCall(
+                "/cgi-eddi-boost-E" + eddiSerialNumber + "-" + "10" + "-" + heater + "-" + duration);
+        try {
+            CommandStatus status = MyEnergiBindingConstants.GSON.fromJson(response, CommandStatus.class);
+            if (status != null) {
+                return status;
+            } else {
+                throw new ApiException("Unexpected JSON response: " + response);
+            }
+        } catch (JsonSyntaxException e) {
+            throw new ApiException("Unable to deserialize JSON response: " + response, e);
+        }
+    }
+
+    public CommandStatus cancelEddiBoost(long eddiSerialNumber, int heater) throws ApiException {
+        String response = executeApiCall("/cgi-eddi-boost-E" + eddiSerialNumber + "-" + "10" + "-" + heater + "-0");
+        try {
+            CommandStatus status = MyEnergiBindingConstants.GSON.fromJson(response, CommandStatus.class);
+            if (status != null) {
+                return status;
+            } else {
+                throw new ApiException("Unexpected JSON response: " + response);
+            }
+        } catch (JsonSyntaxException e) {
+            throw new ApiException("Unable to deserialize JSON response: " + response, e);
+        }
+    }
+
+    public CommandStatus setEddiPriority(long eddiSerialNumber, int heater) throws ApiException {
+        String response = executeApiCall("/cgi-eddi-boost-E" + eddiSerialNumber + "-" + "10" + "-" + heater + "-0");
+        try {
+            CommandStatus status = MyEnergiBindingConstants.GSON.fromJson(response, CommandStatus.class);
+            if (status != null) {
+                return status;
+            } else {
+                throw new ApiException("Unexpected JSON response: " + response);
+            }
+        } catch (JsonSyntaxException e) {
+            throw new ApiException("Unable to deserialize JSON response: " + response, e);
+        }
+    }
+
+    public CommandStatus setEddiHeaterPriority(long eddiSerialNumber, int heater) throws ApiException {
+        String response = executeApiCall("/cgi-set-heater-priority-E" + eddiSerialNumber + "-" + heater);
+        try {
+            CommandStatus status = MyEnergiBindingConstants.GSON.fromJson(response, CommandStatus.class);
+            if (status != null) {
+                return status;
+            } else {
+                throw new ApiException("Unexpected JSON response: " + response);
             }
         } catch (JsonSyntaxException e) {
             throw new ApiException("Unable to deserialize JSON response: " + response, e);

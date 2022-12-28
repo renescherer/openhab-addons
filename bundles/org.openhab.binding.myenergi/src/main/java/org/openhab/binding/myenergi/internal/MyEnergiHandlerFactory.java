@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.myenergi.internal.handler.MyEnergiBridgeHandler;
+import org.openhab.binding.myenergi.internal.handler.MyEnergiEddiHandler;
 import org.openhab.binding.myenergi.internal.handler.MyEnergiHarviHandler;
 import org.openhab.binding.myenergi.internal.handler.MyEnergiZappiHandler;
 import org.openhab.core.io.net.http.HttpClientFactory;
@@ -41,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * handlers.
  *
  * @author Rene Scherer - Initial contribution
+ * @author Stephen Cook - Eddi Support
  */
 @NonNullByDefault
 @Component(configurationPid = "binding.myenergi", service = ThingHandlerFactory.class)
@@ -70,6 +72,8 @@ public class MyEnergiHandlerFactory extends BaseThingHandlerFactory {
             return new MyEnergiZappiHandler(thing, apiClient);
         } else if (THING_TYPE_HARVI.equals(thingTypeUID)) {
             return new MyEnergiHarviHandler(thing, apiClient);
+        } else if (THING_TYPE_EDDI.equals(thingTypeUID)) {
+            return new MyEnergiEddiHandler(thing, apiClient);
         }
         return null;
     }

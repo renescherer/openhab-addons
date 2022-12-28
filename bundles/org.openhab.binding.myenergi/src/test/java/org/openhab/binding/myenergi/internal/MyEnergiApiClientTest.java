@@ -31,6 +31,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.myenergi.internal.dto.DaysOfWeekMap;
+import org.openhab.binding.myenergi.internal.dto.EddiSummary;
 import org.openhab.binding.myenergi.internal.dto.HarviSummary;
 import org.openhab.binding.myenergi.internal.dto.ZappiBoostTimeSlot;
 import org.openhab.binding.myenergi.internal.dto.ZappiBoostTimes;
@@ -44,6 +45,7 @@ import org.openhab.core.io.net.http.HttpClientFactory;
  * The {@link MyEnergiApiClientTest} is a test class for {@link MyEnergiApiClient}.
  *
  * @author Rene Scherer - Initial contribution
+ * @author Stephen Cook - Eddi Support
  */
 @NonNullByDefault
 class MyEnergiApiClientTest {
@@ -75,6 +77,7 @@ class MyEnergiApiClientTest {
 
     private static final int HARVI_SERIAL_NUMBER = 87263212;
     private static final int ZAPPI_SERIAL_NUMBER = 21287642;
+    private static final int EDDI_SERIAL_NUMBER = 21364287;
 
     private static MyEnergiApiClient api = new MyEnergiApiClient();
     private static HttpFields responseFields = mock(HttpFields.class);
@@ -125,20 +128,22 @@ class MyEnergiApiClientTest {
     @Test
     void testUpdateTopologyCache() {
         when(response.getContentAsString()).thenReturn(
-                "[{\"eddi\":[]},{\"zappi\":[{\"dat\":\"03-03-2021\",\"tim\":\"20:00:57\",\"ectp2\":836,\"ectp3\":4,\"ectt1\":\"Internal Load\",\"ectt2\":\"Grid\",\"ectt3\":\"None\",\"frq\":50.8,\"grd\":819,\"pha\":1,\"sno\":21287642,\"sta\":1,\"vol\":2319,\"pri\":1,\"cmt\":254,\"zmo\":3,\"tbk\":5,\"che\":7.35,\"pst\":\"A\",\"mgl\":100,\"sbh\":17,\"sbk\":5,\"ectp4\":-224,\"ectt4\":\"None\",\"ectt5\":\"None\",\"ectt6\":\"None\",\"fwv\":\"3560S3.054\",\"dst\":1,\"lck\":16}\n"
+                "[{\"eddi\":[{\"sno\":21364287,\"dat\":\"03-03-2021\",\"tim\":\"16:06:12\",\"ectp1\":502,\"ectt1\":\"Internal Load\",\"ectt2\":\"None\",\"ectt3\":\"None\"}\n"
+                        + "]},{\"zappi\":[{\"dat\":\"03-03-2021\",\"tim\":\"20:00:57\",\"ectp2\":836,\"ectp3\":4,\"ectt1\":\"Internal Load\",\"ectt2\":\"Grid\",\"ectt3\":\"None\",\"frq\":50.8,\"grd\":819,\"pha\":1,\"sno\":21287642,\"sta\":1,\"vol\":2319,\"pri\":1,\"cmt\":254,\"zmo\":3,\"tbk\":5,\"che\":7.35,\"pst\":\"A\",\"mgl\":100,\"sbh\":17,\"sbk\":5,\"ectp4\":-224,\"ectt4\":\"None\",\"ectt5\":\"None\",\"ectt6\":\"None\",\"fwv\":\"3560S3.054\",\"dst\":1,\"lck\":16}\n"
                         + "]},{\"harvi\":[{\"sno\":87263212,\"dat\":\"03-03-2021\",\"tim\":\"16:06:12\",\"ectp1\":1,\"ectt1\":\"Generation\",\"ectt2\":\"None\",\"ectt3\":\"None\",\"ect1p\":1,\"ect2p\":1,\"ect3p\":1,\"fwv\":\"\"}\n"
                         + "]},{\"asn\":\"s0.myenergi.net\",\"fwv\":\"3401S3021\"}]");
         // when:
         try {
             api.updateTopologyCache();
             // then:
-            assertEquals(0, api.getData().getEddis().size());
+            assertEquals(1, api.getData().getEddis().size());
             assertEquals(1, api.getData().getZappis().size());
             assertEquals(1, api.getData().getHarvis().size());
             assertEquals("s0.myenergi.net", api.getData().getActiveServer());
             assertEquals("3401S3021", api.getData().getFirmwareVersion());
-            assertEquals(HARVI_SERIAL_NUMBER, api.getData().getHarvis().get(0).serialNumber);
+            assertEquals(EDDI_SERIAL_NUMBER, api.getData().getEddis().get(0).serialNumber);
             assertEquals(ZAPPI_SERIAL_NUMBER, api.getData().getZappis().get(0).serialNumber);
+            assertEquals(HARVI_SERIAL_NUMBER, api.getData().getHarvis().get(0).serialNumber);
         } catch (ApiException e) {
             fail(e);
         }
@@ -189,6 +194,30 @@ class MyEnergiApiClientTest {
         // when:
         assertThrows(RecordNotFoundException.class, () -> {
             api.updateHarviSummary(HARVI_SERIAL_NUMBER + 1);
+        });
+    }
+
+    @Test
+    void testUpdateEddiSummary() {
+        when(response.getContentAsString()).thenReturn(
+                "{\"eddi\":[{\"sno\":21364287,\"dat\":\"13-11-2022\",\"tim\":\"16:50:57\",\"ectp1\":502,\"ectt1\":\"Internal Load\",\"ectt2\":\"None\",\"ectt3\":\"None\",\"bsm\":1,\"bst\":0,\"cmt\":254,\"dst\":1,\"div\":502,\"frq\":49.92,\"fwv\":\"3202S4.097\",\"grd\":3302,\"pha\":1,\"pri\":1,\"sta\":4,\"tz\":0,\"vol\":2341,\"che\":3.05,\"hpri\":1,\"hno\":1,\"ht1\":\"Tank 1\",\"ht2\":\"Tank 2\",\"r1a\":0,\"r2a\":0,\"r1b\":0,\"r2b\":0,\"rbc\":1,\"rbt\":1188,\"tp1\":56,\"tp2\":127}]}");
+        // when:
+        try {
+            EddiSummary sum = api.updateEddiSummary(EDDI_SERIAL_NUMBER);
+            // then:
+            assertEquals(EDDI_SERIAL_NUMBER, sum.serialNumber);
+        } catch (ApiException | RecordNotFoundException e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void testUpdateEddiSummaryInvalidSerialNumber() {
+        when(response.getContentAsString())
+                .thenReturn("{\"status\":-19,\"statustext\":\"\",\"asn\":\"s0.myenergi.net\",\"fwv\":\"3401S3021\"}");
+        // when:
+        assertThrows(RecordNotFoundException.class, () -> {
+            api.updateEddiSummary(EDDI_SERIAL_NUMBER + 1);
         });
     }
 

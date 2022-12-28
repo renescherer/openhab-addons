@@ -29,7 +29,7 @@ public class ZappiSummary extends BaseSummary {
     private final Logger logger = LoggerFactory.getLogger(ZappiSummary.class);
 
     // {"dat":"27-11-2020","tim":"16:02:06","ectp2":843,"ectt1":"Internal
-    // Load","ectt2":"Grid","ectt3":"None","frq":50.12,"grd":841,"pha":1,"sno":17028110,"sta":1,"vol":235.0,"pri":1,"cmt":254,"zmo":1,"tbk":5,"che":0.00,"pst":"A","mgl":50,"sbh":17,"sbk":5,"ectt4":"None","ectt5":"None","ectt6":"None","fwv":"3560S3.054","dst":1,"lck":16}
+    // Load","ectt2":"Grid","ectt3":"None","frq":50.12,"grd":841,"pha":1,"sno":17028110,"sta":1,"vol":2350,"pri":1,"cmt":254,"zmo":1,"tbk":5,"che":0.00,"pst":"A","mgl":50,"sbh":17,"sbk":5,"ectt4":"None","ectt5":"None","ectt6":"None","fwv":"3560S3.054","dst":1,"lck":16}
 
     @SerializedName("vol")
     public Float supplyVoltageInTenthVolt;
@@ -46,7 +46,7 @@ public class ZappiSummary extends BaseSummary {
     @SerializedName("sta")
     public Integer status; // 0 Starting, 1 Waiting for export, 2 DSR, 3 Diverting, 4 Boosting, 5 Charge Complete
     @SerializedName("pst")
-    public String plugStatus; // Status A=EV Disconnected, B1=EV Connected, B2=Waiting for EV, C1=Charging, C2= Charging
+    public String plugStatus; // Status A=EV Disconnected, B1=EV Connected, B2=Waiting for EV, C1=Charging, C2=Charging
                               // Max Power, F=Fault/Restart
     @SerializedName("cmt")
     public Integer commandTries; // 0-10 Trying, 253 Acked & Failed, 254 Acked & OK, 255 No command has ever been sent

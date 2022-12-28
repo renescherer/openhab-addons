@@ -44,7 +44,7 @@ public class DeviceSummary {
 
     @Override
     public String toString() {
-        return "DeviceSummary [harvis=" + harvis + ", zappis=" + zappis + ", activeServer=" + activeServer
-                + ", firmwareVersion=" + firmwareVersion + "]";
+        return "DeviceSummary [harvis=" + harvis + ", zappis=" + zappis + ", eddis=" + eddis + ", activeServer="
+                + activeServer + ", firmwareVersion=" + firmwareVersion + "]";
     }
 }

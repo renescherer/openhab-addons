@@ -31,6 +31,7 @@ import com.google.gson.GsonBuilder;
  * used across the whole binding.
  *
  * @author Rene Scherer - Initial contribution
+ * @author Stephen Cook - Eddi Support
  */
 @NonNullByDefault
 public class MyEnergiBindingConstants {
@@ -96,4 +97,31 @@ public class MyEnergiBindingConstants {
     public static final String HARVI_CHANNEL_CLAMP_PHASE_1 = "clampPhase1";
     public static final String HARVI_CHANNEL_CLAMP_PHASE_2 = "clampPhase2";
     public static final String HARVI_CHANNEL_CLAMP_PHASE_3 = "clampPhase3";
+
+    // Eddi Channel Names
+    public static final String EDDI_CHANNEL_LAST_UPDATED_TIME = "lastUpdatedTime";
+    public static final String EDDI_CHANNEL_DAYLIGHT_SAVINGS = "daylightSavings";
+    public static final String EDDI_CHANNEL_BOOST_MODE = "boostMode";
+    public static final String EDDI_CHANNEL_BOOST_REMAINING = "boostRemaining";
+    public static final String EDDI_CHANNEL_ENERGY_TRANSFERRED = "energyTransferred";
+    public static final String EDDI_CHANNEL_DIVERTED_POWER = "divertedPower";
+    public static final String EDDI_CHANNEL_GENERATED_POWER = "generatedPower";
+    public static final String EDDI_CHANNEL_GRID_POWER = "gridPower";
+    public static final String EDDI_CHANNEL_CLAMP_POWER_1 = "clampPower1";
+    public static final String EDDI_CHANNEL_CLAMP_POWER_2 = "clampPower2";
+    public static final String EDDI_CHANNEL_CLAMP_POWER_3 = "clampPower3";
+    public static final String EDDI_CHANNEL_CLAMP_NAME_1 = "clampName1";
+    public static final String EDDI_CHANNEL_CLAMP_NAME_2 = "clampName2";
+    public static final String EDDI_CHANNEL_CLAMP_NAME_3 = "clampName3";
+    public static final String EDDI_CHANNEL_ACTIVE_HEATER = "activeHeater";
+    public static final String EDDI_CHANNEL_HEATER_NAME_1 = "heaterName1";
+    public static final String EDDI_CHANNEL_HEATER_NAME_2 = "heaterName2";
+    public static final String EDDI_CHANNEL_PHASE = "phase";
+    public static final String EDDI_CHANNEL_DIVERTER_PRIORITY = "diverterPriority";
+    public static final String EDDI_CHANNEL_HEATER_PRIORITY = "heaterPriority";
+    public static final String EDDI_CHANNEL_STATUS = "status";
+    public static final String EDDI_CHANNEL_TEMPERATURE_1 = "temperature1";
+    public static final String EDDI_CHANNEL_TEMPERATURE_2 = "temperature2";
+    public static final String EDDI_CHANNEL_SUPPLY_VOLTAGE = "supplyVoltage";
+    public static final String EDDI_CHANNEL_SUPPLY_FREQUENCY = "supplyFrequency";
 }

@@ -24,6 +24,7 @@ import javax.measure.quantity.ElectricPotential;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Frequency;
 import javax.measure.quantity.Power;
+import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -177,6 +178,16 @@ public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler impleme
         updateState(channelId, quantity);
     }
 
+    protected void updateTemperatureState(final String channelId, @Nullable Float value, Unit<Temperature> unit) {
+        QuantityType<Temperature> quantity;
+        if (value != null) {
+            quantity = new QuantityType<>(value, unit);
+        } else {
+            quantity = new QuantityType<>(0, unit);
+        }
+        updateState(channelId, quantity);
+    }
+
     protected void updateStringState(final String channelId, @Nullable String value) {
         if (value != null) {
             updateState(channelId, new StringType(value));
@@ -184,6 +195,12 @@ public abstract class MyEnergiBaseDeviceHandler extends BaseThingHandler impleme
     }
 
     protected void updateIntegerState(final String channelId, @Nullable Integer value) {
+        if (value != null) {
+            updateState(channelId, new DecimalType(value));
+        }
+    }
+
+    protected void updateLongState(final String channelId, @Nullable Long value) {
         if (value != null) {
             updateState(channelId, new DecimalType(value));
         }

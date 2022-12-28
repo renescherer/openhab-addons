@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link MyEnergiZappiActions} class implements actions for Electricity Meter Points.
+ * The {@link MyEnergiZappiActions} class implements actions on the Zappi EV charger
  *
  * @author Rene Scherer - Initial contribution
  */
@@ -81,15 +81,4 @@ public class MyEnergiZappiActions implements ThingActions {
             throw new IllegalArgumentException("Instance is not an OctopusEnergyElectricityMeterPointActions class.");
         }
     }
-    //
-    // private Map<String, Object> toResultMap(PriceOptimiserResult result) {
-    // Map<String, Object> map = new HashMap<>();
-    // map.put("lastUpdatedTime", result.lastUpdatedTime);
-    // map.put("optimisedStartTime", result.optimisedStartTime);
-    // map.put("optimisedAverageUnitCost", result.optimisedAverageUnitCost);
-    // map.put("requestedDuration", result.requestedDuration);
-    // map.put("requestedEndTime", result.requestedEndTime);
-    // map.put("requestedStartTime", result.requestedStartTime);
-    // return map;
-    // }
 }
