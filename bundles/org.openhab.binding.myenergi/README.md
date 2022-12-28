@@ -49,36 +49,65 @@ none
 | channel         | type          | description                                                     |
 |-----------------|---------------|-----------------------------------------------------------------|
 | lastUpdatedTime | DateTime      | The time the readings have last been updated.                   |
-| supplyVoltage      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
-| supplyFrequency     | Number:Energy | The amount of energy measured by the clamp.                     |
-| numberOfPhases     | Number        | The identifier of the phase (for 3-phase installations).        |
-| lockingMode     | Number        | The identifier of the phase (for 3-phase installations).        |
-| chargingMode     | Number        | The identifier of the phase (for 3-phase installations).        |
-| status     | Number        | The identifier of the phase (for 3-phase installations).        |
-| plugStatus     | Number        | The identifier of the phase (for 3-phase installations).        |
-| commandTries     | Number        | The identifier of the phase (for 3-phase installations).        |
-| diverterPriority     | Number        | The identifier of the phase (for 3-phase installations).        |
-| minimumGreenLevel     | Number        | The identifier of the phase (for 3-phase installations).        |
-| gridPower     | Number        | The identifier of the phase (for 3-phase installations).        |
-| generatedPower     | Number        | The identifier of the phase (for 3-phase installations).        |
-| divertedPower     | Number        | The identifier of the phase (for 3-phase installations).        |
-| chargeAdded     | Number        | The identifier of the phase (for 3-phase installations).        |
-| smartBoostTime     | Number        | The identifier of the phase (for 3-phase installations).        |
-| smartBoostCharge     | Number        | The identifier of the phase (for 3-phase installations).        |
-| timedBoostTime     | Number        | The identifier of the phase (for 3-phase installations).        |
-| timedBoostCharge     | Number        | The identifier of the phase (for 3-phase installations).        |
+| supplyVoltage   | Number: ElectricPotential | The supply voltage to the Zappi                                 |
+| supplyFrequency | Number:Energy | The amount of energy measured by the clamp.                     |
+| numberOfPhases  | Number        | The identifier of the phase (for 3-phase installations).        |
+| lockingMode     | Number        | Indicates when the connector to the EV is locked in position    |
+| chargingMode    | Number        | Fast, Eco or Eco+                                               |
+| status          | Number        | Decsribes what the charger is doing                             |
+| plugStatus      | String        | Describes state of connection to EV                              |
+| commandTries    | Number        | 0-10 Trying, 253 Failed, 254 OK, 255 No command sent            |
+| diverterPriority | Number        | Priority for solar energy relative to other myenergy devices    |
+| minimumGreenLevel | Number        | Minimum proportion of solar energy used                         |
+| gridPower       | Number:Power  | Power taken from grid                                           |
+| generatedPower  | Number:Power  | Power gererated by solar panels                                 |
+| divertedPower   | Number:Power  | power used by charger                                           |
+| chargeAdded     | Number:Energy | charge added in this or the last charing session                |
+| smartBoostTime  | Number        | length of time for smart boost                                  |
+| smartBoostCharge | Number:Energy | charge added by smart boost                                    |
+| timedBoostTime  | Number        | length of time of timed boost                                   |
+| timedBoostCharge | Number:Energy | charge added by timed boost                                    |
 | clampName1      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
-| clampPower1     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampPower1     | Number:Power  | The power measured by the clamp.                     |
 | clampName2      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
-| clampPower2     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampPower2     | Number:Power  | The power measured by the clamp.                     |
 | clampName3      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
-| clampPower3     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampPower3     | Number:Power  | The power measured by the clamp.                     |
 | clampName4      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
-| clampPower4     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampPower4     | Number:Power  | The power measured by the clamp.                     |
 | clampName5      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
-| clampPower5     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampPower5     | Number:Power  | The power measured by the clamp.                     |
 | clampName6      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
-| clampPower6     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampPower6     | Number:Power  | The power measured by the clamp.                     |
+
+#### Eddi
+
+| channel         | type          | description                                                     |
+| lastUpdatedTime | DateTime      | The time the readings have last been updated.                   |
+| supplyVoltage   | Number:ElectricPotential | The supply voltage to the Eddi                               |
+| supplyFrequency | Number:Frequency | The supply frequency to the Eddi                                  |
+| status          | String        | describes whet the Eddi is currently doing                      |
+| diverterPriority | Number        | Priority for solar energy relative to other myenergy devices    |
+| phase           | Number        | Number of phases                                                |
+| gridPower       | Number:Power  | Power taken from grid                                           |
+| boostMode       | String        | Boost ON or OFF                                                 |
+| energyTransferred | Number:Energy | Energy transferred to heater today                            |
+| generatedPower  | Number:Power  | Power generated by solar panels                                 |
+| divertedPower   | Number:Power  | Power consumed by heater(s)                                     |
+| consumedPower   | Number:Power  | Power consumed by whole installation                            |
+| boostRemaining  | Number        | time left for current boost                                     |
+| activeHeater    | Number        | the heater no currently in use                                  |
+| heaterPriority  | Number        | the heater no to be used first                                  |
+| heaterName1     | String        | the name of the heater                                          |
+| heaterName2     | String        | the name of the heater                                          |
+| temperature1    | Number        | the temperature (in Celsius) of water tank 1                    |
+| temperature2    | Number        | the temperature (in Celsius) of water tank 2                    | 
+| clampName1      | String        | the name of clamp 1 (directly connected current transformer)    |
+| clampName2      | String        | the name of clamp 2 (directly connected current transformer)    |
+| clampName3      | String        | the name of clamp 3 (directly connected current transformer)    |
+| clampPower1     | Number:Power  | the power measured by clamp 1                                   |
+| clampPower2     | Number:Power  | the power measured by clamp 2                                   |
+| clampPower3     | Number:Power  | the power measured by clamp 3                                   |
 
 ####  Harvi
 
@@ -86,17 +115,23 @@ none
 |-----------------|---------------|-----------------------------------------------------------------|
 | lastUpdatedTime | DateTime      | The time the readings have last been updated.                   |
 | clampName1      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampName2      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampName3      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
 | clampPower1     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampPower2     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampPower3     | Number:Energy | The amount of energy measured by the clamp.                     |
 | clampPhase1     | Number        | The identifier of the phase (for 3-phase installations).        |
-
+| clampPhase2     | Number        | The identifier of the phase (for 3-phase installations).        |
+| clampPhase3     | Number        | The identifier of the phase (for 3-phase installations).        |
 
 ## Actions
 
-tbd
+Zappi
+  setTimedBoost(@Nullable ThingActions actions, int slot, DayOfWeek dayOfWeek, int startHour, int startMinute, Duration duration)
 
-####  Electricity Meter Point
-
-tbd
+Eddi 
+  setBoost(int heater, int duration)
+  cancelBoost(int heater)
 
 ## Examples
 
