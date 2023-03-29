@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -63,7 +63,7 @@ public abstract class GatewayQueryService implements AutoCloseable {
     @Nullable
     public abstract SystemInfo fetchSystemInfo();
 
-    public abstract List<MeasuredValue> getMeasuredValues();
+    public abstract Collection<MeasuredValue> getMeasuredValues();
 
     public GatewayQueryService(FineOffsetGatewayConfiguration config,
             @Nullable ThingStatusListener thingStatusListener) {
@@ -73,14 +73,20 @@ public abstract class GatewayQueryService implements AutoCloseable {
 
     protected byte @Nullable [] executeCommand(String command, byte[] request,
             Function<byte[], Boolean> validateResponse) {
+        try {
+            if (!REQUEST_LOCK.tryLock(30, TimeUnit.SECONDS)) {
+                logger.debug("executeCommand({}): timed out while getting the lock", command);
+                return null;
+            }
+        } catch (InterruptedException e) {
+            logger.debug("executeCommand({}): was interrupted while getting the lock", command);
+            return null;
+        }
+
         byte[] buffer = new byte[2028];
         int bytesRead;
 
         try {
-            if (!REQUEST_LOCK.tryLock(30, TimeUnit.SECONDS)) {
-                logger.trace("executeCommand({}): time out while getting lock", command);
-                return null;
-            }
             Socket socket = getConnection();
             if (socket == null) {
                 return null;

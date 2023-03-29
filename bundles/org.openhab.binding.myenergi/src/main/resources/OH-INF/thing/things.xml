@@ -226,7 +226,7 @@
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
 
-	<channel-type id="clampPowerTypeL2">
+  <channel-type id="clampPowerTypeL2">
 		<item-type>Number:Power</item-type>
 		<label>Clamp Power</label>
 		<description>The measured power at the CT L2</description>

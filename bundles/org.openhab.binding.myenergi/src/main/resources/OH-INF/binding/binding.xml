@@ -7,7 +7,7 @@
 	<description>The myenergi binding connects to the myenergi hub and interacts with the following myenergi products:
 		zappi EV charger,
 		harvi remote device for CT sensors,
-		eddi solar energy diverter
-		.</description>
+		eddi solar energy diverter.
+  </description>
 
 </binding:binding>

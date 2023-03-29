@@ -45,6 +45,7 @@ public class RotelSimuConnector extends RotelConnector {
 
     private static final int STEP_TONE_LEVEL = 1;
     private static final double STEP_DECIBEL = 0.5;
+    private static final String FIRMWARE = "V1.1.8";
 
     private final Logger logger = LoggerFactory.getLogger(RotelSimuConnector.class);
 
@@ -77,6 +78,9 @@ public class RotelSimuConnector extends RotelConnector {
     private int track = 1;
     private boolean randomMode;
     private RotelRepeatMode repeatMode = RotelRepeatMode.OFF;
+    private int fmPreset = 5;
+    private int dabPreset = 15;
+    private int iradioPreset = 25;
     private boolean selectingRecord;
     private int showZone;
     private int dimmer;
@@ -175,6 +179,7 @@ public class RotelSimuConnector extends RotelConnector {
         String textLine1Right = buildVolumeLine1RightResponse();
         String textLine2 = "";
         String textAscii = "";
+        boolean variableLength = false;
         boolean accepted = true;
         boolean resetZone = true;
         int numZone = 0;
@@ -832,6 +837,69 @@ public class RotelSimuConnector extends RotelConnector {
                 case REPEAT_MODE:
                     textAscii = buildRepeatModeAsciiResponse();
                     break;
+                case CALL_FM_PRESET:
+                    if (value != null) {
+                        fmPreset = value.intValue();
+                        if (protocol == RotelProtocol.ASCII_V1) {
+                            variableLength = true;
+                            textAscii = buildAsciiResponse(String.format("%s%d", KEY_FM_PRESET, fmPreset),
+                                    "8,Radio FM");
+                        } else {
+                            accepted = false;
+                        }
+                    } else {
+                        accepted = false;
+                    }
+                    break;
+                case CALL_DAB_PRESET:
+                    if (value != null) {
+                        dabPreset = value.intValue();
+                        if (protocol == RotelProtocol.ASCII_V1) {
+                            variableLength = true;
+                            textAscii = buildAsciiResponse(String.format("%s%d", KEY_DAB_PRESET, dabPreset),
+                                    "9,Radio DAB");
+                        } else {
+                            accepted = false;
+                        }
+                    } else {
+                        accepted = false;
+                    }
+                    break;
+                case CALL_IRADIO_PRESET:
+                    if (value != null) {
+                        iradioPreset = value.intValue();
+                        variableLength = true;
+                        textAscii = buildAsciiResponse(String.format("%s%d", KEY_IRADIO_PRESET, iradioPreset),
+                                "12,Radio iRadio");
+                    } else {
+                        accepted = false;
+                    }
+                    break;
+                case PRESET:
+                    if ("FM".equals(sources[0].getName())) {
+                        textAscii = buildAsciiResponse(KEY_PRESET_FM, fmPreset);
+                    } else if ("DAB".equals(sources[0].getName())) {
+                        textAscii = buildAsciiResponse(KEY_PRESET_DAB, dabPreset);
+                    } else if ("IRADIO".equals(sources[0].getName())) {
+                        textAscii = buildAsciiResponse(KEY_PRESET_IRADIO, iradioPreset);
+                    } else {
+                        textAscii = buildAsciiResponse(KEY_PRESET_FM, 0);
+                    }
+                    break;
+                case FM_PRESET:
+                    if ("FM".equals(sources[0].getName())) {
+                        textAscii = buildAsciiResponse(KEY_FM, String.format("%02d", fmPreset));
+                    } else {
+                        textAscii = buildAsciiResponse(KEY_FM, "00");
+                    }
+                    break;
+                case DAB_PRESET:
+                    if ("DAB".equals(sources[0].getName())) {
+                        textAscii = buildAsciiResponse(KEY_DAB, String.format("%02d", dabPreset));
+                    } else {
+                        textAscii = buildAsciiResponse(KEY_DAB, "00");
+                    }
+                    break;
                 case SOURCE_MULTI_INPUT:
                     multiinput = !multiinput;
                     text = "MULTI IN " + (multiinput ? "ON" : "OFF");
@@ -1062,10 +1130,22 @@ public class RotelSimuConnector extends RotelConnector {
                     textAscii = buildAsciiResponse(KEY_PCUSB_CLASS, pcUsbClass);
                     break;
                 case MODEL:
-                    textAscii = buildAsciiResponse(KEY_MODEL, model.getName());
+                    if (protocol == RotelProtocol.ASCII_V1) {
+                        variableLength = true;
+                        textAscii = buildAsciiResponse(KEY_PRODUCT_TYPE,
+                                String.format("%d,%s", model.getName().length(), model.getName()));
+                    } else {
+                        textAscii = buildAsciiResponse(KEY_MODEL, model.getName());
+                    }
                     break;
                 case VERSION:
-                    textAscii = buildAsciiResponse(KEY_VERSION, "1.00");
+                    if (protocol == RotelProtocol.ASCII_V1) {
+                        variableLength = true;
+                        textAscii = buildAsciiResponse(KEY_PRODUCT_VERSION,
+                                String.format("%d,%s", FIRMWARE.length(), FIRMWARE));
+                    } else {
+                        textAscii = buildAsciiResponse(KEY_VERSION, FIRMWARE);
+                    }
                     break;
                 default:
                     accepted = false;
@@ -1186,7 +1266,14 @@ public class RotelSimuConnector extends RotelConnector {
                 idxInFeedbackMsg = 0;
             }
         } else {
-            String command = textAscii + (protocol == RotelProtocol.ASCII_V1 ? "!" : "$");
+            String command = textAscii;
+            if (protocol == RotelProtocol.ASCII_V1 && !variableLength) {
+                command += "!";
+            } else if (protocol == RotelProtocol.ASCII_V2 && !variableLength) {
+                command += "$";
+            } else if (protocol == RotelProtocol.ASCII_V2 && variableLength) {
+                command += "$$";
+            }
             synchronized (lock) {
                 feedbackMsg = command.getBytes(StandardCharsets.US_ASCII);
                 idxInFeedbackMsg = 0;

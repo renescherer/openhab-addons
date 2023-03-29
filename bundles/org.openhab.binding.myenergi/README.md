@@ -3,7 +3,7 @@
 This binding allows openHAB to communicate with the public API from myenergi Ltd. (https://myenergi.info), a manufacturer of electric vehicle chargers (Zappi) and solar energy diverters (Eddi):
 
 - Retrieval of current energy readings (grid, solar, EV charger)
-- Control Zappi charging status and boost modes for Zappi
+- Control charging status and boost modes for Zappi
 - Control of Eddi manual boost
 
 This binding has been tested with a Harvi, a Zappi and an Eddi.
@@ -56,7 +56,7 @@ none
 | lockingMode     | Number        | Indicates when the connector to the EV is locked in position    |
 | chargingMode    | Number        | Fast, Eco or Eco+                                               |
 | status          | Number        | Decsribes what the charger is doing                             |
-| plugStatus      | String        | Describes state of connection to EV                              |
+| plugStatus      | String        | Describes state of connection to EV                             |
 | commandTries    | Number        | 0-10 Trying, 253 Failed, 254 OK, 255 No command sent            |
 | diverterPriority | Number        | Priority for solar energy relative to other myenergy devices    |
 | minimumGreenLevel | Number        | Minimum proportion of solar energy used                         |
@@ -109,6 +109,37 @@ none
 | clampPower1     | Number:Power  | the power measured by clamp 1                                   |
 | clampPower2     | Number:Power  | the power measured by clamp 2                                   |
 | clampPower3     | Number:Power  | the power measured by clamp 3                                   |
+=======
+| supplyVoltage      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| supplyFrequency     | Number:Energy | The amount of energy measured by the clamp.                     |
+| numberOfPhases     | Number        | The identifier of the phase (for 3-phase installations).        |
+| lockingMode     | Number        | The identifier of the phase (for 3-phase installations).        |
+| chargingMode     | Number        | The identifier of the phase (for 3-phase installations).        |
+| status     | Number        | The identifier of the phase (for 3-phase installations).        |
+| plugStatus     | Number        | The identifier of the phase (for 3-phase installations).        |
+| commandTries     | Number        | The identifier of the phase (for 3-phase installations).        |
+| diverterPriority     | Number        | The identifier of the phase (for 3-phase installations).        |
+| minimumGreenLevel     | Number        | The identifier of the phase (for 3-phase installations).        |
+| gridPower     | Number        | The identifier of the phase (for 3-phase installations).        |
+| generatedPower     | Number        | The identifier of the phase (for 3-phase installations).        |
+| divertedPower     | Number        | The identifier of the phase (for 3-phase installations).        |
+| chargeAdded     | Number        | The identifier of the phase (for 3-phase installations).        |
+| smartBoostTime     | Number        | The identifier of the phase (for 3-phase installations).        |
+| smartBoostCharge     | Number        | The identifier of the phase (for 3-phase installations).        |
+| timedBoostTime     | Number        | The identifier of the phase (for 3-phase installations).        |
+| timedBoostCharge     | Number        | The identifier of the phase (for 3-phase installations).        |
+| clampName1      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower1     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampName2      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower2     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampName3      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower3     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampName4      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower4     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampName5      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower5     | Number:Energy | The amount of energy measured by the clamp.                     |
+| clampName6      | String        | A name for the clamp (set through app, e.g. "Solar Generation". |
+| clampPower6     | Number:Energy | The amount of energy measured by the clamp.                     |
 
 ####  Harvi
 

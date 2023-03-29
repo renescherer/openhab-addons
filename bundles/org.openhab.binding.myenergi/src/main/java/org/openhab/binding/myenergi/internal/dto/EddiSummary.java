@@ -14,7 +14,6 @@ package org.openhab.binding.myenergi.internal.dto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -112,7 +111,7 @@ public class EddiSummary extends BaseSummary {
     }
 
     public void toLogger() {
-        logger.info("ZappiSummary:");
+        logger.info("EddiSummary:");
         logger.info("serialNumber={}", serialNumber);
         logger.info("date/time={} {}, dst={}", dat, tim, dst);
         logger.info("supplyVoltage={}, supplyFrequency={}", supplyVoltageInTenthVolt, supplyFrequency);
@@ -128,4 +127,5 @@ public class EddiSummary extends BaseSummary {
         logger.info("Tank 1 temperature={}, Tank 2 temperature={}", temperature1, temperature2);
         logger.info("firmwareVersion={}", firmwareVersion);
     }
+
 }

@@ -110,7 +110,7 @@ public class TeslaAccountHandler extends BaseBridgeHandler {
 
     @Override
     public void initialize() {
-        logger.trace("Initializing the Tesla account handler for {}", this.getStorageKey());
+        logger.debug("Initializing the Tesla account handler for {}", this.getStorageKey());
 
         updateStatus(ThingStatus.UNKNOWN);
 
@@ -129,7 +129,7 @@ public class TeslaAccountHandler extends BaseBridgeHandler {
 
     @Override
     public void dispose() {
-        logger.trace("Disposing the Tesla account handler for {}", getThing().getUID());
+        logger.debug("Disposing the Tesla account handler for {}", getThing().getUID());
 
         lock.lock();
         try {
@@ -167,6 +167,10 @@ public class TeslaAccountHandler extends BaseBridgeHandler {
         }
     }
 
+    public String getAccessToken() {
+        return logonToken.access_token;
+    }
+
     protected boolean checkResponse(Response response, boolean immediatelyFail) {
         if (response != null && response.getStatus() == 200) {
             return true;
@@ -184,8 +188,8 @@ public class TeslaAccountHandler extends BaseBridgeHandler {
                 } else {
                     logger.warn("Reached the maximum number of errors ({}) for the current interval ({} seconds)",
                             API_MAXIMUM_ERRORS_IN_INTERVAL, API_ERROR_INTERVAL_SECONDS);
+                    apiIntervalErrors = 0;
                 }
-
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
             } else if ((System.currentTimeMillis() - apiIntervalTimestamp) > 1000 * API_ERROR_INTERVAL_SECONDS) {
                 logger.trace("Resetting the error counter. ({} errors in the last interval)", apiIntervalErrors);
@@ -252,16 +256,19 @@ public class TeslaAccountHandler extends BaseBridgeHandler {
         TokenResponse token = logonToken;
 
         boolean hasExpired = true;
+        logger.debug("Current authentication time {}", dateFormatter.format(Instant.now()));
 
         if (token != null) {
             Instant tokenCreationInstant = Instant.ofEpochMilli(token.created_at * 1000);
-            logger.debug("Found a request token created at {}", dateFormatter.format(tokenCreationInstant));
-            Instant tokenExpiresInstant = Instant.ofEpochMilli(token.created_at * 1000 + 60 * token.expires_in);
+            Instant tokenExpiresInstant = Instant.ofEpochMilli((token.created_at + token.expires_in) * 1000);
+            logger.debug("Found a request token from {}", dateFormatter.format(tokenCreationInstant));
+            logger.debug("Access token expiration time {}", dateFormatter.format(tokenExpiresInstant));
 
             if (tokenExpiresInstant.isBefore(Instant.now())) {
-                logger.debug("The token has expired at {}", dateFormatter.format(tokenExpiresInstant));
+                logger.debug("The access token has expired");
                 hasExpired = true;
             } else {
+                logger.debug("The access token has not expired yet");
                 hasExpired = false;
             }
         }
